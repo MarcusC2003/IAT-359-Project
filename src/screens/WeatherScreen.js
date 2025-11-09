@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ImageBackground, FlatList } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function WeatherPageUI() {
-  // ----- dummy data for UI only -----
+  // Create Day Value
   const today = useMemo(() => new Date(), []);
   const dateLabel = useMemo(
     () => today.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }),
@@ -21,11 +22,7 @@ export default function WeatherPageUI() {
   // -----------------------------------
 
   return (
-    <ImageBackground
-      source={require('../../assets/components/Home_Page.png')}
-      style={styles.background}
-      resizeMode="cover"
-    >
+      <SafeAreaView style={styles.background}>
       {/* Header*/}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Today’s weather</Text>
@@ -92,7 +89,7 @@ export default function WeatherPageUI() {
           </View>
         </View>
       </View>
-    </ImageBackground>
+      </SafeAreaView>
   );
 }
 
@@ -104,6 +101,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     paddingTop: 26,
+    backgroundColor:'#E9E3D5',
   },
   brandBrown: { color: '#5B3C2E' },
   brandAccent: { color: '#E0916C' },

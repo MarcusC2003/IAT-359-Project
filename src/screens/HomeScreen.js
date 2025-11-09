@@ -1,6 +1,9 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 
+// components
+import NavigationBar from '../components/NavigationBar';
+
 export default function HomeScreen() {
   return (
     <ImageBackground
@@ -23,39 +26,6 @@ export default function HomeScreen() {
       <Text style={styles.greeting}>Good morning, User :)</Text>
 
       {/* Bottom nav */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navItem}>
-          <Image
-            source={require('../../assets/icons/calendar_icon.png')}
-            style={styles.navIcon}
-          />
-          <Text style={styles.navText}>Calendar</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Image
-            source={require('../../assets/icons/checklist_icon.png')}
-            style={styles.navIcon}
-          />
-          <Text style={styles.navText}>To-dos</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Image
-            source={require('../../assets/icons/photo_icon.png')}
-            style={styles.navIcon}
-          />
-          <Text style={styles.navText}>Memories</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Image
-            source={require('../../assets/icons/cards_icon.png')}
-            style={styles.navIcon}
-          />
-          <Text style={styles.navText}>Notes</Text>
-        </TouchableOpacity>
-      </View>
     </ImageBackground>
   );
 }
