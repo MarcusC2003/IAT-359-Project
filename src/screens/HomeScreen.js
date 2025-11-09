@@ -14,10 +14,12 @@ export default function HomeScreen() {
       {/* Top bar */}
       <View style={styles.header}>
         <View style={styles.spacer} /> 
-        <TouchableOpacity style={styles.iconWrapper}>
+        <TouchableOpacity style={styles.iconWrapper}
+        >
           <Image
             source={require('../../assets/icons/cat_icon.png')}
             style={styles.homeIcon}
+            onPress={() => navigation.navigate('HomeScreen')}
           />
         </TouchableOpacity>
       </View>
@@ -26,6 +28,41 @@ export default function HomeScreen() {
       <Text style={styles.greeting}>Good morning, User :)</Text>
 
       {/* Bottom nav */}
+      <View style={styles.navBar}>
+        <TouchableOpacity style={styles.navItem}>
+          <Image
+            source={require('../../assets/icons/calendar_icon.png')}
+            style={styles.navIcon}
+          />
+          <Text style={styles.navText}>Calendar</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navItem}>
+          <Image
+            source={require('../../assets/icons/checklist_icon.png')}
+            style={styles.navIcon}
+            onPress={() => navigation.navigate('Task')}
+          />
+          <Text style={styles.navText}>To-dos</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navItem}>
+          <Image
+            source={require('../../assets/icons/photo_icon.png')}
+            style={styles.navIcon}
+          />
+          <Text style={styles.navText}>Memories</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.navItem}>
+          <Image
+            source={require('../../assets/icons/cards_icon.png')}
+            onPress={() => navigation.navigate('Notes')}
+            style={styles.navIcon}
+          />
+          <Text style={styles.navText}>Notes</Text>
+        </TouchableOpacity>
+      </View>
     </ImageBackground>
   );
 }
