@@ -1,127 +1,121 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
-
-// components
-import NavigationBar from '../components/NavigationBar';
+import React from "react";
+import {View,Text,Image,ImageBackground,StyleSheet,TouchableOpacity} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <ImageBackground
-      source={require('../../assets/components/Home_Page.png')}
-      style={styles.background}
-      resizeMode="cover"
-    >
-      {/* Top bar */}
-      <View style={styles.header}>
-        <View style={styles.spacer} /> 
-        <TouchableOpacity style={styles.iconWrapper}
+    <View style={styles.container}>
+      <ImageBackground
+        source={require("../../assets/components/Home_Page.png")}
+        style={styles.background}
+        resizeMode="cover"
+      >
+        <View style={[styles.topBar, { paddingTop: insets.top }]} />
+
+        <Text style={styles.greeting}>Good morning, User</Text>
+
+        <View
+          style={[
+            styles.navBar,
+            { paddingBottom: insets.bottom > 0 ? insets.bottom : 10 },
+          ]}
         >
-          <Image
-            source={require('../../assets/icons/cat_icon.png')}
-            style={styles.homeIcon}
-            onPress={() => navigation.navigate('HomeScreen')}
-          />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.navItem}>
+            <Image source={require("../../assets/icons/calendar_icon.png")} style={styles.navIcon} />
+            <Text style={styles.navText}>Calendar</Text>
+          </TouchableOpacity>
 
-      {/* Greeting */}
-      <Text style={styles.greeting}>Good morning, User :)</Text>
+          <TouchableOpacity style={styles.navItem}>
+            <Image source={require("../../assets/icons/checklist_icon.png")} style={styles.navIcon} />
+            <Text style={styles.navText}>Tasks</Text>
+          </TouchableOpacity>
 
-      {/* Bottom nav */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navItem}>
-          <Image
-            source={require('../../assets/icons/calendar_icon.png')}
-            style={styles.navIcon}
-          />
-          <Text style={styles.navText}>Calendar</Text>
-        </TouchableOpacity>
+          {/* HOME: only the inner cat fades, rings stay opaque */}
+        <View style={styles.homeOuter}>
+          <View style={styles.homeRing}>
+            <View style={styles.homeInner}>
+              <TouchableOpacity
+                style={styles.homeTap}
+                activeOpacity={0.4}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <View style={styles.homeContent}>
+                  <Image
+                    source={require("../../assets/icons/cat_icon.png")}
+                    style={styles.homeIcon}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.homeLabel}>Home</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
 
-        <TouchableOpacity style={styles.navItem}>
-          <Image
-            source={require('../../assets/icons/checklist_icon.png')}
-            style={styles.navIcon}
-            onPress={() => navigation.navigate('Task')}
-          />
-          <Text style={styles.navText}>To-dos</Text>
-        </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem}>
-          <Image
-            source={require('../../assets/icons/photo_icon.png')}
-            style={styles.navIcon}
-          />
-          <Text style={styles.navText}>Memories</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.navItem}>
+            <Image source={require("../../assets/icons/weather_icon.png")} style={styles.navIcon} />
+            <Text style={styles.navText}>Weather</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem}>
-          <Image
-            source={require('../../assets/icons/cards_icon.png')}
-            onPress={() => navigation.navigate('Notes')}
-            style={styles.navIcon}
-          />
-          <Text style={styles.navText}>Notes</Text>
-        </TouchableOpacity>
-      </View>
-    </ImageBackground>
+          <TouchableOpacity style={styles.navItem}>
+            <Image source={require("../../assets/icons/cards_icon.png")} style={styles.navIcon} />
+            <Text style={styles.navText}>Notes</Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
+    </View>
   );
 }
 
+const COLORS = {
+  bg: "#EFE6DE",
+  text: "#844634",
+  topBar: "#E0916C",
+  navBg: "#E0916C",
+  muted: "#FFFFFFFF",
+};
+
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+  },
   background: {
     flex: 1,
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
+    alignItems: "center",
   },
-  header: {
-    width: '100%',
-    paddingHorizontal: 24,
-    paddingTop: 40,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  spacer: {
-    flex: 1,
-  },
-  iconWrapper: {
-    width: 60,
+  topBar: {
+    width: "100%",
     height: 60,
-    backgroundColor: '#E0916C',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-  },
-  homeIcon: {
-    width: 40,
-    height: 40,
-    resizeMode: 'contain',
+    backgroundColor: COLORS.topBar,
   },
   greeting: {
-    marginTop: 50,
-    fontSize: 20,
-    color: '#5B3C2E',
-    fontWeight: '500',
+    fontSize: 28,
+    fontWeight: "800",
+    color: COLORS.text,
+    textAlign: "center",
+    marginTop: 65,
+    marginBottom: "auto",
   },
   navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#E0916C',
-    width: '100%',
-    paddingVertical: 14,
-    position: 'absolute',
-    bottom: 0,
-    height: 90,
+    width: "100%",
+    height: 100,
+    backgroundColor: COLORS.navBg,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
   },
   navItem: {
-    alignItems: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   navIcon: {
     width: 24,
@@ -130,7 +124,51 @@ const styles = StyleSheet.create({
   },
   navText: {
     fontSize: 12,
-    color: '#fff',
-    fontWeight: '500',
+    color: COLORS.muted,
   },
+  homeOuter: {
+    alignItems: "center",
+    justifyContent: "center",
+    top:8,
+    gap: 4,
+  },
+  homeRing: {
+    width: 112,
+    height: 112,
+    borderRadius: "100%",
+    backgroundColor: COLORS.navBg,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  homeInner: {
+    width: 90,
+    height: 90,
+    borderRadius: "100%",
+    backgroundColor: COLORS.text,
+    alignItems: "center",
+    justifyContent: "center",
+
+  },
+  homeTap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  homeIcon: {
+    width: 36,
+    height: 36,
+  },
+  homeLabel: {
+    fontSize: 13,
+    fontWeight: "400",
+    color: COLORS.muted,
+    marginTop: 4,
+  },
+  homeContent: {
+  alignItems: "center",
+  justifyContent: "center",
+},
+  
 });

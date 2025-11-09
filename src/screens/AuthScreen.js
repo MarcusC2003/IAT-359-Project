@@ -55,7 +55,7 @@ export default function AuthScreen({ navigation }) {
 
           {/* Main Login Card */}
           <View style={styles.card}>
-            {/* Logo - UPDATED */}
+            {/* Logo*/}
             <View style={styles.logoContainer}>
               <Image
                 source={require('../../assets/icons/cat_icon.png')}

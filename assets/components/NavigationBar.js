@@ -1,70 +1,143 @@
-import React, { memo } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { View, Text, Image, StyleSheet } from 'react-native';
 
-const TABS = [
-  { key: 'Calendar',  label: 'Calendar', icon: require('../assets/icons/calendar_icon.png') },
-  { key: 'ToDos',     label: 'To-dos',   icon: require('../assets/icons/checklist_icon.png') },
-  { key: 'Memories',  label: 'Memories', icon: require('../assets/icons/photo_icon.png') },
-  { key: 'Notes',     label: 'Notes',    icon: require('../assets/icons/cards_icon.png') },
-];
-
-function BottomNav({ pageTitle }) {
-  const navigation = useNavigation();
-
+export default function NavigationBar() {
   return (
-    <View style={styles.navBar}>
-      {TABS.map(tab => {
-        const selected = tab.key === pageTitle;
-        return (
-          <TouchableOpacity
-            key={tab.key}
-            style={[styles.navItem, selected ? styles.navItemSelected : styles.navItemUnselected]}
-            onPress={() => navigation.navigate(tab.key)}
-            accessibilityRole="tab"
-            accessibilityState={{ selected }}
-          >
-            <Image
-              source={tab.icon}
-              style={[styles.navIcon, selected ? styles.iconSelected : styles.iconUnselected]}
-            />
-            <Text style={[styles.navText, selected ? styles.textSelected : styles.textUnselected]}>
-              {tab.label}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
+    <View style={styles.wrapper}>
+      <View style={styles.bar}>
+        {/* Calendar */}
+        <View style={styles.tab}>
+          <Image
+            source={require('../icons/calendar_icon.png')}
+            style={styles.icon}
+            resizeMode="contain"
+          />
+          <Text style={styles.label}>Calendar</Text>
+        </View>
+
+        {/* Tasks */}
+        <View style={styles.tab}>
+          <Image
+            source={require('../icons/checklist_icon.png')}
+            style={styles.icon}
+            resizeMode="contain"
+          />
+          <Text style={styles.label}>Tasks</Text>
+        </View>
+
+        {/* Center Home bump */}
+        <View style={styles.homeButton}>
+          <View style={styles.homeRing}>
+            <View style={styles.homeInner}>
+              <Image
+                source={require('../icons/cat_icon.png')}
+                style={styles.homeIcon}
+                resizeMode="contain"
+              />
+              <Text style={styles.homeLabel}>Home</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Weather */}
+        <View style={styles.tab}>
+          <Image
+            source={require('../icons/weather_icon.png')}
+            style={styles.icon}
+            resizeMode="contain"
+          />
+          <Text style={styles.label}>Weather</Text>
+        </View>
+
+        {/* Notes */}
+        <View style={styles.tab}>
+          <Image
+            source={require('../icons/cards_icon.png')}
+            style={styles.icon}
+            resizeMode="contain"
+          />
+          <Text style={styles.label}>Notes</Text>
+        </View>
+      </View>
     </View>
   );
 }
 
-export default memo(BottomNav);
-
+/* ---------- Styles ---------- */
 const styles = StyleSheet.create({
-  navBar: {
+  wrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    paddingBottom: 6,
+  },
+
+  // main bar background
+  bar: {
+    width: '92%',
+    height: 84,
+    backgroundColor: '#D68567',
+    borderRadius: 28,
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: '#E0916C',
-    width: '100%',
-    paddingVertical: 14,
-    position: 'absolute',
-    bottom: 0,
-    height: 90,
+    alignItems: 'center',
   },
-  navItem: {
+
+  // icons & labels
+  tab: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 6,
   },
-  // exactly two visual states
-  navItemSelected: { opacity: 1 },
-  navItemUnselected: { opacity: 0.7 },
+  icon: {
+    width: 24,
+    height: 24,
+    tintColor: '#5B3C2E',
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
 
-  navIcon: { width: 24, height: 24, marginBottom: 4 },
-  iconSelected:   { transform: [{ scale: 1.1 }] },
-  iconUnselected: { transform: [{ scale: 1 }] },
-
-  navText: { fontSize: 12, fontWeight: '500' },
-  textSelected:   { color: '#fff', fontWeight: '700' },
-  textUnselected: { color: '#fff' },
+  // center bump
+  homeButton: {
+    position: 'absolute',
+    top: -28,
+    alignSelf: 'center',
+    width: 112,
+    height: 112,
+    borderRadius: 9999,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  homeRing: {
+    width: 112,
+    height: 112,
+    borderRadius: 9999,
+    backgroundColor: '#B8745C',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  homeInner: {
+    width: 92,
+    height: 92,
+    borderRadius: 9999,
+    backgroundColor: '#6B3B2F',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  homeIcon: {
+    width: 34,
+    height: 34,
+    tintColor: '#EFE7DA',
+  },
+  homeLabel: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#EFE7DA',
+  },
 });
