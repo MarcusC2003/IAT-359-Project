@@ -1,7 +1,9 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { useNavigation } from '@react-navigation/native';
 
 export default function NavBar({ page }) {
+  const navigation = useNavigation();
   const COLORS = {
     bg: "#EFE6DE",
     text: "#844634",
@@ -13,7 +15,7 @@ export default function NavBar({ page }) {
   return (
     <View style={[styles(COLORS).navBar]}>
       {/* Calendar Page */}
-      <TouchableOpacity style={styles(COLORS).navItem}>
+      <TouchableOpacity style={styles(COLORS).navItem} onPress={() => {navigation.navigate('Calendar')}}>
         <Image
           source={require("../../assets/icons/calendar_icon.png")}
           style={styles(COLORS).navIcon}
@@ -22,7 +24,7 @@ export default function NavBar({ page }) {
       </TouchableOpacity>
 
       {/* Tasks Page */}
-      <TouchableOpacity style={styles(COLORS).navItem}>
+      <TouchableOpacity style={styles(COLORS).navItem} onPress={() => {navigation.navigate('Tasks')}}>
         <Image
           source={require("../../assets/icons/checklist_icon.png")}
           style={styles(COLORS).navIcon}
@@ -30,7 +32,10 @@ export default function NavBar({ page }) {
         <Text style={styles(COLORS).navText}>Tasks</Text>
       </TouchableOpacity>
 
-      {/* Home Page */}
+      {/* 
+        Home Page 
+        HitSlop (extend touchable area): https://reactnative.dev/docs/touchablewithoutfeedback
+      */}
       <View style={styles(COLORS).homeOuter}>
         <View style={styles(COLORS).homeRing}>
           <View style={styles(COLORS).homeInner}>
@@ -38,6 +43,7 @@ export default function NavBar({ page }) {
               style={styles(COLORS).homeTap}
               activeOpacity={0.4}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              onClick={() => {navigation.navigate('Home')}}
             >
               <View style={styles(COLORS).homeContent}>
                 <Image
@@ -52,7 +58,7 @@ export default function NavBar({ page }) {
         </View>
       </View>
       {/* Weather Page */}
-      <TouchableOpacity style={styles(COLORS).navItem}>
+      <TouchableOpacity style={styles(COLORS).navItem} onPress={() => {navigation.navigate('Weather')}}>
         <Image
           source={require("../../assets/icons/weather_icon.png")}
           style={styles(COLORS).navIcon}
@@ -61,7 +67,7 @@ export default function NavBar({ page }) {
       </TouchableOpacity>
 
       {/* Notes Page */}
-      <TouchableOpacity style={styles(COLORS).navItem}>
+      <TouchableOpacity style={styles(COLORS).navItem} onPress={() => {navigation.navigate('Notes')}}>
         <Image
           source={require("../../assets/icons/cards_icon.png")}
           style={styles(COLORS).navIcon}
@@ -74,7 +80,11 @@ export default function NavBar({ page }) {
 
 const styles = (COLORS) =>
   StyleSheet.create({
-    navBar: {
+     navBar: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: 0,
       width: "100%",
       height: 100,
       backgroundColor: COLORS.navBg,
