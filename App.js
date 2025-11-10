@@ -17,7 +17,7 @@ const Stack = createNativeStackNavigator();
 
 function TabLayout() {
   return (
-    <Tab.Navigator
+    <ProtectedTab.Navigator
       screenOptions={{ headerShown: false }}
       tabBar={({ state, navigation }) => (
         <NavBar page={state.routeNames[state.index]} navigation={navigation} />
@@ -28,7 +28,7 @@ function TabLayout() {
       <Tab.Screen name="Notes" component={NotesScreen} />
       <Tab.Screen name="Weather" component={WeatherScreen} />
       <Tab.Screen name="Calendar" component={CalendarScreen} />
-    </Tab.Navigator>
+    </ProtectedTab.Navigator>
   );
 }
 
@@ -38,7 +38,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/* <Stack.Screen name="Login" component={AuthScreen} /> */}
+        <Stack.Screen name="Login" component={AuthScreen} />
         <Stack.Screen name="Main" component={TabLayout} />
       </Stack.Navigator>
     </NavigationContainer>

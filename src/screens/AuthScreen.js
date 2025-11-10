@@ -1,19 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-  StyleSheet,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Image, // <-- Make sure Image is imported
-} from 'react-native';
+  StyleSheet, View, Text, TextInput,
+  TouchableOpacity, KeyboardAvoidingView,
+  Platform, Image, ActivityIndicator, Alert
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { firebase_auth } from "../utils/firebaseConfig";
 
-// We'll keep FontAwesome for the Google icon: https://fontawesome.com/icons
-// but we've removed MaterialCommunityIcons
+//FontAwesome for the Google icon: https://fontawesome.com/icons
 import { FontAwesome } from '@expo/vector-icons';
 
 // --- Color Palette ---
@@ -30,96 +25,105 @@ const colors = {
 };
 
 // --- Main AuthScreen Component ---
-export default function AuthScreen({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function SignInScreen({ navigation }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const handleSignIn = async () => {
+    if (!email || !password) {
+      Alert.alert("Missing info", "Please enter your email and password.");
+      return;
+    }
+    try {
+      setBusy(true);
+      await signInWithEmailAndPassword(firebase_auth, email.trim(), password);
+      // onAuthStateChanged in App.js will take over and navigate
+    } catch (e) {
+      Alert.alert("Sign in failed", e.message?.toString() ?? "Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleSignUp = async () => {
+    if (!email || !password) {
+      Alert.alert("Missing info", "Please enter an email and password to create an account.");
+      return;
+    }
+    try {
+      setBusy(true);
+      await createUserWithEmailAndPassword(firebase_auth, email.trim(), password);
+      // possibly send verification email
+    } catch (e) {
+      Alert.alert("Sign up failed", e.message?.toString() ?? "Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Top right icon - UPDATED */}
-          {/* <View style={styles.headerIconContainer}>
-            <Image
-              // The path is ../../ because you go up from 'screens', up from 'src'
-              source={require('../../assets/icons/cat_icon.png')}
-              style={styles.headerIcon}
-            />
-          </View> */}
-
-          {/* Main Login Card */}
-          <View style={styles.card}>
-            {/* Logo*/}
-            <View style={styles.logoContainer}>
-              <Image
-                source={require('../../assets/icons/cat_icon.png')}
-                style={styles.logoIcon}
-              />
-            </View>
-
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>
-              Sign in to your cozy productivity space
-            </Text>
-
-            {/* Email Input */}
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="you@example.com"
-              placeholderTextColor={colors.textSecondary}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-
-            {/* Password Input */}
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="•••••••••"
-              placeholderTextColor={colors.textSecondary}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry // Hides password
-            />
-
-            {/* Sign In Button */}
-            <TouchableOpacity 
-              style={styles.signInButton}
-              onPress={() => navigation.navigate('Home')} // <-- This is INSIDE the tag
-            >
-              <Text style={styles.signInButtonText}>Sign In</Text>
-            </TouchableOpacity>
-
-            {/* Divider */}
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            {/* Sign in with Google Button */}
-            <TouchableOpacity style={styles.googleButton}>
-              <FontAwesome name="google" size={20} color={colors.black} />
-              <Text style={styles.googleButtonText}>Sign in with Google</Text>
-            </TouchableOpacity>
-
-            {/* Sign Up Link */}
-            <TouchableOpacity style={styles.signUpButton}>
-              <Text style={styles.signUpButtonText}>
-                Don't have an account? Sign up
-              </Text>
-            </TouchableOpacity>
+        <View style={styles.card}>
+          <View style={styles.logoContainer}>
+            <Image source={require("../../assets/icons/cat_icon.png")} style={styles.logoIcon} />
           </View>
-        </ScrollView>
+
+          <Text style={styles.title}>Welcome Back</Text>
+          <Text style={styles.subtitle}>Sign in to your cozy productivity space</Text>
+
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="you@example.com"
+            placeholderTextColor={colors.textSecondary}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="•••••••••"
+            placeholderTextColor={colors.textSecondary}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+
+          <TouchableOpacity
+            style={[styles.signInButton, busy && { opacity: 0.7 }]}
+            onPress={handleSignIn}
+            disabled={busy}
+          >
+            {busy ? (
+              <ActivityIndicator color={colors.white} />
+            ) : (
+              <Text style={styles.signInButtonText}>Sign In</Text>
+            )}
+          </TouchableOpacity>
+
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>OR</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          {/* You can remove this whole block if you truly don't want sign up yet */}
+          <TouchableOpacity style={styles.googleButton} onPress={handleSignUp} disabled={busy}>
+            <Text style={styles.googleButtonText}>Create an account</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp} disabled={busy}>
+            <Text style={styles.signUpButtonText}>Don't have an account? Sign up</Text>
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
