@@ -4,6 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../../assets/components/NavBar';
 
 export default function WeatherPageUI() {
+  // Load font
+  const [fontsLoaded] = useFonts({
+      Fredoka: require("../../assets/fonts/Fredoka.ttf"),
+    });
+  
+    if (!fontsLoaded) return null;
+  
   // Create Day Value
   const today = useMemo(() => new Date(), []);
   const dateLabel = useMemo(
@@ -111,6 +118,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   headerTitle: {
+    fontFamily: 'Fredoka',
     fontSize: 28,
     color: '#5B3C2E',
     fontWeight: '900',
@@ -148,6 +156,7 @@ const styles = StyleSheet.create({
   },
 
   dateText: {
+    fontFamily: 'Fredoka',
     textAlign: 'center',
     fontSize: 18,
     color: '#5B3C2E',
@@ -198,6 +207,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   subTitle: {
+    fontFamily: 'Fredoka',
     fontSize: 20,
     color: '#5B3C2E',
     fontWeight: '900',
@@ -220,9 +230,20 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     letterSpacing: 0.3,
   },
-  amPm: { fontSize: 12, fontWeight: '800', color: '#5B3C2E', opacity: 0.85 },
-  hourEmoji: { fontSize: 20, marginVertical: 4 },
-  hourTemp: { color: '#5B3C2E', fontWeight: '900' },
+  amPm: { 
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#5B3C2E',
+    opacity: 0.85
+  },
+  hourEmoji: {
+    fontSize: 20,
+    marginVertical: 4
+  },
+  hourTemp: { 
+    color: '#5B3C2E',
+    fontWeight: '900'
+  },
 
   // reminders
   reminderHeader: {

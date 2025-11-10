@@ -4,16 +4,19 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 export default function NavBar({ page, navigation }) {
   return (
     <View style={[styles.navBar]}>
+      {/* Tasks Button */}
       <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Calendar")}>
         <Image source={require("../../assets/icons/calendar_icon.png")} style={styles.navIcon} />
         <Text style={styles.navText}>Calendar</Text>
       </TouchableOpacity>
 
+      {/* Tasks Button */}
       <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Tasks")}>
         <Image source={require("../../assets/icons/checklist_icon.png")} style={styles.navIcon} />
         <Text style={styles.navText}>Tasks</Text>
       </TouchableOpacity>
 
+      {/* Home Button */}
       <View style={styles.homeOuter}>
         <View style={styles.homeRing}>
           <View style={styles.homeInner}>
@@ -32,11 +35,13 @@ export default function NavBar({ page, navigation }) {
         </View>
       </View>
 
+      {/* Weather Button */}
       <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Weather")}>
         <Image source={require("../../assets/icons/weather_icon.png")} style={styles.navIcon} />
         <Text style={styles.navText}>Weather</Text>
       </TouchableOpacity>
 
+      {/* Notes Button */}
       <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Notes")}>
         <Image source={require("../../assets/icons/cards_icon.png")} style={styles.navIcon} />
         <Text style={styles.navText}>Notes</Text>
