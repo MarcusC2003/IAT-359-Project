@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) { 
   return (
     <ImageBackground
       source={require('../../assets/components/Home_Page.png')}
@@ -11,12 +11,16 @@ export default function HomeScreen() {
       {/* Top bar */}
       <View style={styles.header}>
         <View style={styles.spacer} /> 
-        <TouchableOpacity style={styles.iconWrapper}
+        {/* 2.
+          --- MOVED onPress TO THE TouchableOpacity --- */}
+        <TouchableOpacity 
+          style={styles.iconWrapper}
+          onPress={() => navigation.navigate('Home')} // Changed to 'Home'
         >
           <Image
             source={require('../../assets/icons/cat_icon.png')}
             style={styles.homeIcon}
-            onPress={() => navigation.navigate('HomeScreen')}
+            // Removed onPress from here
           />
         </TouchableOpacity>
       </View>
@@ -26,7 +30,11 @@ export default function HomeScreen() {
 
       {/* Bottom nav */}
       <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navItem}>
+        {/* --- MOVED/ADDED onPress TO THE TouchableOpacity --- */}
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Calendar')} // Assuming 'Calendar'
+        >
           <Image
             source={require('../../assets/icons/calendar_icon.png')}
             style={styles.navIcon}
@@ -34,16 +42,24 @@ export default function HomeScreen() {
           <Text style={styles.navText}>Calendar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem}>
+        {/* --- MOVED/ADDED onPress TO THE TouchableOpacity --- */}
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Tasks')} // Changed from 'Task' to 'Tasks'
+        >
           <Image
             source={require('../../assets/icons/checklist_icon.png')}
             style={styles.navIcon}
-            onPress={() => navigation.navigate('Task')}
+            // Removed onPress from here
           />
           <Text style={styles.navText}>To-dos</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem}>
+        {/* --- MOVED/ADDED onPress TO THE TouchableOpacity --- */}
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Photos')} // Assuming 'Photos'
+        >
           <Image
             source={require('../../assets/icons/photo_icon.png')}
             style={styles.navIcon}
@@ -51,11 +67,15 @@ export default function HomeScreen() {
           <Text style={styles.navText}>Memories</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem}>
+        {/* --- MOVED/ADDED onPress TO THE TouchableOpacity --- */}
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Notes')}
+        >
           <Image
             source={require('../../assets/icons/cards_icon.png')}
-            onPress={() => navigation.navigate('Notes')}
             style={styles.navIcon}
+            // Removed onPress from here
           />
           <Text style={styles.navText}>Notes</Text>
         </TouchableOpacity>
@@ -63,7 +83,6 @@ export default function HomeScreen() {
     </ImageBackground>
   );
 }
-
 const styles = StyleSheet.create({
   background: {
     flex: 1,
