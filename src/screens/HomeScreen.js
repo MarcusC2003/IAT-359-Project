@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
-import NavBar from "../../assets/components/NavBar";
+import NavBar from "../components/NavBar";
 
 const COLORS = {
   bg: "#EFE6DE",
@@ -20,7 +20,7 @@ const COLORS = {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [fontsLoaded] = useFonts({
-    Fredoka: require("../../assets/fonts/Fredoka.ttf"),
+    Fredoka: require("../assets/fonts/Fredoka.ttf"),
   });
 
   if (!fontsLoaded) return null;
@@ -28,7 +28,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require("../../assets/components/Home_Page.png")}
+        source={require("../assets/images/home_background.png")}
         style={styles.background}
         resizeMode="cover"
       >

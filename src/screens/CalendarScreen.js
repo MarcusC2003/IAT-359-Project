@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
-import NavBar from "../../assets/components/NavBar";
+import NavBar from "../components/NavBar";
 
 const COLORS = {
   bg: "#EFE6DE",

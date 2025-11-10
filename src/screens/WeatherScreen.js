@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import NavBar from '../../assets/components/NavBar';
+import NavBar from '../components/NavBar';
 
 export default function WeatherPageUI() {
   // Load font

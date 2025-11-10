@@ -10,7 +10,7 @@ import NotesScreen from "./src/screens/NotesScreen";
 import WeatherScreen from "./src/screens/WeatherScreen";
 import CalendarScreen from "./src/screens/CalendarScreen";
 // import AuthScreen from "./src/screens/AuthScreen";
-import NavBar from "./assets/components/NavBar";
+import NavBar from "./src/components/NavBar";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
