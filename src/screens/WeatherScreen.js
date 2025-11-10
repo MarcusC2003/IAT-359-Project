@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import NavBar from '../../assets/components/NavBar';
 
 export default function WeatherPageUI() {
   // Create Day Value
@@ -23,14 +24,6 @@ export default function WeatherPageUI() {
 
   return (
       <SafeAreaView style={styles.background}>
-      {/* Header*/}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Today’s weather</Text>
-        <View style={styles.catBadge}>
-          <Image source={require('../../assets/icons/cat_icon.png')} style={styles.catIcon} />
-        </View>
-      </View>
-
       {/* Main card */}
       <View style={styles.card}>
         <Text style={styles.dateText}>
@@ -76,7 +69,7 @@ export default function WeatherPageUI() {
           <View style={styles.reminderHeader}>
             <Text style={styles.subTitle}>Personal Reminders</Text>
             <TouchableOpacity style={styles.addPill} activeOpacity={0.8}>
-              <Text style={styles.addPillText}>＋ Add</Text>
+              <Text style={styles.addPillText}>＋Add</Text>
             </TouchableOpacity>
           </View>
 
@@ -89,6 +82,7 @@ export default function WeatherPageUI() {
           </View>
         </View>
       </View>
+      <NavBar page="weather" />
       </SafeAreaView>
   );
 }
