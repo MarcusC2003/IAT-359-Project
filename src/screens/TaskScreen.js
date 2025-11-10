@@ -26,7 +26,7 @@ const TaskItem = ({ text }) => {
   return (
     <View style={styles.taskItem}>
       <Image
-        source={require('../../assets/icons/circle_icon_notes.png')}
+        source={require('../assets/icons/circle_icon_notes.png')}
         style={styles.checkbox}
       />
       <Text style={styles.taskText}>{text}</Text>
@@ -85,53 +85,7 @@ export default function TaskScreen({ navigation }) {
           </View>
           <TaskItem text="Journal and try the best you can" />
         </ScrollView>
-
-        {/* UPDATED: Bottom Tab Bar to match your 'navBar' style guide */}
-        <View style={styles.navBar}>
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Calendar')} // <-- Added navigation
-          >
-            <Image
-              source={require('../../assets/icons/calendar_icon.png')}
-              style={styles.navIcon} // <-- Updated style name
-            />
-            <Text style={styles.navText}>Calender</Text> {/* <-- Updated style name */}
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Tasks')} // <-- Added navigation
-          >
-            <Image
-              source={require('../../assets/icons/checklist_icon.png')}
-              style={styles.navIcon} // <-- Updated style name
-            />
-            <Text style={styles.navText}>To-dos</Text> {/* <-- Updated style name */}
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Photos')} // <-- Added navigation (Assuming 'Photos' is the name in App.js)
-          >
-            <Image
-              source={require('../../assets/icons/photo_icon.png')}
-              style={styles.navIcon} // <-- Updated style name
-            />
-            <Text style={styles.navText}>Photos</Text> {/* <-- Updated style name */}
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Notes')} // <-- Added navigation
-          >
-            <Image
-              source={require('../../assets/icons/cards_icon.png')}
-              style={styles.navIcon} // <-- Updated style name
-            />
-            <Text style={styles.navText}>Notes</Text> {/* <-- Updated style name */}
-          </TouchableOpacity>
-        </View>
+      
       </View>
     </SafeAreaView>
   );

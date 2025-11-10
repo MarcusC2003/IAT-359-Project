@@ -60,7 +60,7 @@ export default function NotesScreen({ navigation }) {
           {/* UPDATED: Applied 'iconWrapper' style from your guide */}
           <View style={styles.iconWrapper}>
             <Image
-              source={require('../../assets/icons/cat_icon.png')}
+              source={require('../assets/icons/cat_icon.png')}
               // UPDATED: Applied 'homeIcon' style from your guide
               style={styles.homeIcon}
             />
