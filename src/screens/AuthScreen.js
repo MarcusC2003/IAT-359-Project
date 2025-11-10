@@ -25,10 +25,10 @@ const colors = {
 };
 
 // --- Main AuthScreen Component ---
-export default function SignInScreen({ navigation }) {
+export default function SignInScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -36,13 +36,13 @@ export default function SignInScreen({ navigation }) {
       return;
     }
     try {
-      setBusy(true);
+      setLoading(true);
       await signInWithEmailAndPassword(firebase_auth, email.trim(), password);
       // onAuthStateChanged in App.js will take over and navigate
     } catch (e) {
       Alert.alert("Sign in failed", e.message?.toString() ?? "Please try again.");
     } finally {
-      setBusy(false);
+      setLoading(false);
     }
   };
 
@@ -52,13 +52,13 @@ export default function SignInScreen({ navigation }) {
       return;
     }
     try {
-      setBusy(true);
+      setLoading(true);
       await createUserWithEmailAndPassword(firebase_auth, email.trim(), password);
       // possibly send verification email
     } catch (e) {
       Alert.alert("Sign up failed", e.message?.toString() ?? "Please try again.");
     } finally {
-      setBusy(false);
+      setLoading(false);
     }
   };
 
@@ -70,7 +70,7 @@ export default function SignInScreen({ navigation }) {
       >
         <View style={styles.card}>
           <View style={styles.logoContainer}>
-            <Image source={require("../../assets/icons/cat_icon.png")} style={styles.logoIcon} />
+            <Image source={require("../assets/icons/cat_icon.png")} style={styles.logoIcon} />
           </View>
 
           <Text style={styles.title}>Welcome Back</Text>
@@ -98,11 +98,11 @@ export default function SignInScreen({ navigation }) {
           />
 
           <TouchableOpacity
-            style={[styles.signInButton, busy && { opacity: 0.7 }]}
+            style={[styles.signInButton, loading && { opacity: 0.7 }]}
             onPress={handleSignIn}
-            disabled={busy}
+            disabled={loading}
           >
-            {busy ? (
+            {loading ? (
               <ActivityIndicator color={colors.white} />
             ) : (
               <Text style={styles.signInButtonText}>Sign In</Text>
@@ -116,11 +116,11 @@ export default function SignInScreen({ navigation }) {
           </View>
 
           {/* You can remove this whole block if you truly don't want sign up yet */}
-          <TouchableOpacity style={styles.googleButton} onPress={handleSignUp} disabled={busy}>
+          <TouchableOpacity style={styles.googleButton} onPress={handleSignUp} disabled={loading}>
             <Text style={styles.googleButtonText}>Create an account</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp} disabled={busy}>
+          <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp} disabled={loading}>
             <Text style={styles.signUpButtonText}>Don't have an account? Sign up</Text>
           </TouchableOpacity>
         </View>
