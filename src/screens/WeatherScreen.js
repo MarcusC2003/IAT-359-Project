@@ -1,12 +1,14 @@
 import React, { useMemo } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import NavBar from '../components/NavBar';
+import { useFonts } from "expo-font";
+
+
 
 export default function WeatherPageUI() {
   // Load font
   const [fontsLoaded] = useFonts({
-      Fredoka: require("../../assets/fonts/Fredoka.ttf"),
+      Fredoka: require("../assets/fonts/Fredoka.ttf"),
     });
   
     if (!fontsLoaded) return null;
@@ -89,7 +91,6 @@ export default function WeatherPageUI() {
           </View>
         </View>
       </View>
-      <NavBar page="weather" />
       </SafeAreaView>
   );
 }

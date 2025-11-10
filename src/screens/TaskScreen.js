@@ -43,7 +43,7 @@ export default function TaskScreen({ navigation }) {
         {/* UPDATED: Using style 'iconWrapper' from your guide */}
         <View style={styles.iconWrapper}>
           <Image
-            source={require('../../assets/icons/cat_icon.png')}
+            source={require('../assets/icons/cat_icon.png')}
             // UPDATED: Using style 'homeIcon' from your guide
             style={styles.homeIcon}
           />
@@ -65,7 +65,7 @@ export default function TaskScreen({ navigation }) {
            <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Actions for today!</Text>
             <Image
-              source={require('../../assets/icons/flag_icon.png')}
+              source={require('../assets/icons/flag_icon.png')}
               style={styles.flagIcon}
             />
           </View>

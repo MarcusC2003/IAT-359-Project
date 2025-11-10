@@ -91,53 +91,6 @@ export default function NotesScreen({ navigation }) {
             cardText=""
           />
         </ScrollView>
-
-        {/* 3. BOTTOM TAB BAR (UPDATED to match your main style guide) */}
-        <View style={styles.navBar}>
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Calendar')}
-          >
-            <Image
-              source={require('../../assets/icons/calendar_icon.png')}
-              style={styles.navIcon}
-            />
-            <Text style={styles.navText}>Calender</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Tasks')}
-          >
-            <Image
-              source={require('../../assets/icons/checklist_icon.png')}
-              style={styles.navIcon}
-            />
-            <Text style={styles.navText}>To-dos</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Photos')} // Assuming 'Photos' is the name in App.js
-          >
-            <Image
-              source={require('../../assets/icons/photo_icon.png')}
-              style={styles.navIcon}
-            />
-            <Text style={styles.navText}>Photos</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Notes')}
-          >
-            <Image
-              source={require('../../assets/icons/cards_icon.png')}
-              style={styles.navIcon}
-            />
-            <Text style={styles.navText}>Notes</Text>
-          </TouchableOpacity>
-        </View>
       </View>
     </SafeAreaView>
   );

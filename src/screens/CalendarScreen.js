@@ -20,7 +20,7 @@ const COLORS = {
 export default function CalendarScreen() {
   const insets = useSafeAreaInsets();
   const [fontsLoaded] = useFonts({
-    Fredoka: require("../../assets/fonts/Fredoka.ttf"),
+    Fredoka: require("../assets/fonts/Fredoka.ttf"),
   });
 
   if (!fontsLoaded) return null;
