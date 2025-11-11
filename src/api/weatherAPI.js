@@ -1,8 +1,12 @@
+// used chat gpt to clean up comments
+
 import * as Location from "expo-location";
 import { Alert } from "react-native";
+
 // Weather icons --> will convert to svg later
 console.log("weatherAPI loaded");
 
+// Daytime weather icons
 const weatherIcons = {
   clear: require("../assets/icons/weather/clear.png"),
   cloudy: require("../assets/icons/weather/cloudy.png"),
@@ -13,15 +17,24 @@ const weatherIcons = {
   snow: require("../assets/icons/weather/snow.png"),
   storm: require("../assets/icons/weather/storm.png"),
 };
+
+// Nighttime weather icons
 const nightWeatherIcons = {
   clear: require("../assets/icons/weather/clear-night.png"),
   partlyCloudy: require("../assets/icons/weather/partly-cloudy-night.png"),
 };
 
-// Get weather label and icon from weather code
-// Convert Open-Meteo weather codes to labels and icons
-// Params: code (number), isNight (boolean)
-// Return: { label: string, icon: icon }
+// ---------- Constants ----------
+const SUNRISE_HOUR = 6;       // 6 AM
+const SUNSET_HOUR = 18;       // 6 PM
+const TIME_SLOTS = 23;        // Number of hourly forecast entries to display
+
+/*
+  - Get weather label and icon from weather code
+  - Convert Open-Meteo weather codes to labels and icons
+  - Params: code (number), isNight (boolean)
+  - Return: { label: string, icon: icon }
+*/
 export function mapWeatherCode(code, isNight = false) {
   // Day/Night specific icons
   if (code === 0) {
@@ -45,12 +58,14 @@ export function mapWeatherCode(code, isNight = false) {
   return { label: "Cloudy", icon: weatherIcons.cloudy };
 }
 
-// Weather API from https://open-meteo.com/
-// Params: User Location (lat, lon)
-// Returns: weather data --> URL string
-function buildUrl(lat, lon) {
+/*
+  - Weather API from https://open-meteo.com/
+  - Params: User Location (lat, lon)
+  - Returns: weather data --> URL string
+*/
+function buildUrl(latitude, longitude) {
   return (
-    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
     `&current=temperature_2m,weather_code` +
     `&hourly=temperature_2m,weather_code` +
     `&daily=sunrise,sunset` +
@@ -58,16 +73,19 @@ function buildUrl(lat, lon) {
   );
 }
 
-// Get Weather Data from Open Meteo
-// Returns: weather data --> URL string
+/*
+  - Get location, fetch weather data, and parse response
+  - Returns: { current, hourly } weather data
+*/
 export async function fetchWeatherData() {
   try {
-    // Request 
+    // Request location permission
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
       Alert.alert("Permission denied", "Enable location to get weather data.");
       return { current: null, hourly: [] };
     }
+
     // Get current location
     const { coords } = await Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.Lowest, // more reliable and faster
@@ -78,6 +96,7 @@ export async function fetchWeatherData() {
     if (!response.ok) throw new Error(`Open-Meteo error: ${response.status}`);
     const data = await response.json();
 
+    // Check for missing data before continuing
     if (!data.current || !data.hourly || !data.daily) {
       throw new Error("Incomplete weather data from API.");
     }
@@ -93,23 +112,29 @@ export async function fetchWeatherData() {
       }
     }
 
-    // Function:  Check if night 
-    // returns: boolean
-    const isNightAt = (dateObj) => {
-      const dayKey = dateObj.toISOString().slice(0, 10);
-      const meta = sunByDay[dayKey];
-      if (!meta) {
-        // Fallback heuristic if sunrise/sunset missing
-        const h = dateObj.getHours();
-        return h < 6 || h >= 18;
+    /*
+      - Function: Check if a given date/time is during the night
+      - Params: targetDate (Date)
+      - Return: boolean (true if night, false if day)
+    */
+    const isNightAt = (targetDate) => {
+      const dateKey = targetDate.toISOString().slice(0, 10);
+      const sunTimes = sunByDay[dateKey];
+
+      // Fallback heuristic if sunrise/sunset missing
+      if (!sunTimes) {
+        const hour = targetDate.getHours();
+        return hour < SUNRISE_HOUR || hour >= SUNSET_HOUR;
       }
-      const t = dateObj.getTime();
-      return t < meta.sunrise || t >= meta.sunset;
+
+      const timestamp = targetDate.getTime();
+      return timestamp < sunTimes.sunrise || timestamp >= sunTimes.sunset;
     };
 
-    /* ----- Current ----- */
+    /* ----- Current Weather ----- */
     const now = new Date();
 
+    // Handle missing current data safely
     const temp =
       data.current?.temperature_2m !== undefined
         ? Math.round(data.current.temperature_2m)
@@ -119,7 +144,7 @@ export async function fetchWeatherData() {
     const { label, icon } = mapWeatherCode(code, isNightAt(now));
     const current = { temp, label, icon };
 
-    /* ----- Hourly (next 23 slots from "now") ----- */
+    /* ----- Hourly Forecast (next TIME_SLOTS slots) ----- */
     const times = data.hourly?.time || [];
     const temps = data.hourly?.temperature_2m || [];
     const codes = data.hourly?.weather_code || [];
@@ -128,13 +153,15 @@ export async function fetchWeatherData() {
     const startIdx = times.findIndex((t) => new Date(t).getTime() >= nowMs);
 
     const hourly = [];
-    for (let i = startIdx; i < startIdx + 23 && i < times.length; i++) {
-      const d = new Date(times[i]);
-      let hour = d.getHours();
+    for (let i = startIdx; i < startIdx + TIME_SLOTS && i < times.length; i++) {
+      const forecastDate = new Date(times[i]);
+
+      // Convert to 12-hour format (AM/PM)
+      let hour = forecastDate.getHours();
       const period = hour >= 12 ? "PM" : "AM";
       hour = hour % 12 || 12;
 
-      const { icon: hourIcon } = mapWeatherCode(codes[i], isNightAt(d));
+      const { icon: hourIcon } = mapWeatherCode(codes[i], isNightAt(forecastDate));
       hourly.push({
         time: hour,
         period,
@@ -143,8 +170,10 @@ export async function fetchWeatherData() {
       });
     }
 
+    // Return parsed weather data
     return { current, hourly };
   } catch (err) {
+    // Handle API or location errors gracefully
     Alert.alert("Error", err.message || "Failed to load weather data.");
     console.error("fetchWeatherData error:", err);
     return { current: null, hourly: [] };
