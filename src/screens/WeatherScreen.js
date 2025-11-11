@@ -1,272 +1,268 @@
-import React, { useMemo } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+  Image,
+  Alert,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
-
-
+import { fetchWeatherData } from "../api/weatherAPI";
 
 export default function WeatherPageUI() {
-  // Load font
-  const [fontsLoaded] = useFonts({
-      Fredoka: require("../assets/fonts/Fredoka.ttf"),
-    });
-  
-    if (!fontsLoaded) return null;
-  
-  // Create Day Value
-  const today = useMemo(() => new Date(), []);
+  const [fontsLoaded] = useFonts({ Fredoka: require("../assets/fonts/Fredoka.ttf") });
+
+  const [loading, setLoading] = useState(true);
+  const [current, setCurrent] = useState(null);
+  const [hourly, setHourly] = useState([]);
+  const reminders = ["sunscreen", "sunglasses", "hat", "water bottle"];
+
+  // Fetch weather data
+  useEffect(() => {
+    (async () => {
+      try {
+        const { current, hourly } = await fetchWeatherData();
+        if (!current) throw new Error("No current weather");
+        setCurrent(current);
+        setHourly(hourly);
+      } catch (e) {
+        Alert.alert("Error", "Unable to fetch weather data");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  // Get Date Label
+  const date = useMemo(() => new Date(), []);
   const dateLabel = useMemo(
-    () => today.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }),
-    [today]
+    () =>
+      date.toLocaleDateString(undefined, {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      }),
+    [date]
   );
 
-  const current = { temp: 24, label: 'Sunny', emoji: '☀️' };
-  const hourly = [
-    { t: '1', meridiem: 'AM', emoji: '☀️', temp: 12 },
-    { t: '2', meridiem: 'AM', emoji: '🌥️', temp: 8 },
-    { t: '3', meridiem: 'AM', emoji: '☁️', temp: 3 },
-    { t: '4', meridiem: 'AM', emoji: '☁️', temp: 4 },
-    { t: '5', meridiem: 'AM', emoji: '🌤️', temp: 5 },
-  ];
-  const reminders = ['sunscreen', 'sunglasses', 'hat', 'water bottle'];
-  // -----------------------------------
+  if (!fontsLoaded || loading) {
+    return <ActivityIndicator size="large" style={{ marginTop: 40 }} />;
+  }
 
   return (
-      <SafeAreaView style={styles.background}>
-      {/* Main card */}
+    <SafeAreaView style={styles.screen}>
+      <Text style={styles.pageTitle}>Today’s weather</Text>
+
       <View style={styles.card}>
-        <Text style={styles.dateText}>
-          {dateLabel} <Text style={styles.year}>{today.getFullYear()}</Text>
+        {/* Date */}
+        <Text style={styles.date}>
+          {dateLabel} 
         </Text>
 
-        <View style={styles.heroRow}>
-          <Text style={styles.bigEmoji}>{current.emoji}</Text>
-          <Text style={styles.bigTemp}>
+        {/* Hero */}
+        <View style={styles.hero}>
+          <Image source={current.icon} style={styles.weatherIcon} />
+          <Text style={styles.temp}>
             {current.temp}
             <Text style={styles.deg}>°</Text>
           </Text>
         </View>
-
         <Text style={styles.condition}>{current.label}</Text>
 
         <View style={styles.divider} />
 
-        {/* Forecast card */}
+        {/* Forecast */}
         <View style={styles.subCard}>
           <Text style={styles.subTitle}>Today’s Forecast</Text>
           <FlatList
             horizontal
             data={hourly}
-            keyExtractor={(it, i) => `${i}-${it.t}${it.meridiem}`}
-            contentContainerStyle={{ paddingVertical: 6 }}
+            keyExtractor={(_, i) => String(i)}
             showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.hourList}
             renderItem={({ item }) => (
-              <View style={styles.hourCol}>
-                <Text style={styles.hourTop}>
-                  {item.t}
-                  <Text style={styles.amPm}> {item.meridiem}</Text>
+              <View style={styles.hourBox}>
+                <Text style={styles.hourText}>
+                  {item.time}
+                  <Text style={styles.periodText}> {item.period}</Text>
                 </Text>
-                <Text style={styles.hourEmoji}>{item.emoji}</Text>
+                <Image source={item.icon} style={styles.hourIcon} />
                 <Text style={styles.hourTemp}>{item.temp}°</Text>
               </View>
             )}
           />
         </View>
 
-        {/* Reminders card */}
-        <View style={[styles.subCard, { marginTop: 18 }]}>
+        {/* Reminders */}
+        <View style={[styles.subCard, { marginTop: 16 }]}>
           <View style={styles.reminderHeader}>
             <Text style={styles.subTitle}>Personal Reminders</Text>
-            <TouchableOpacity style={styles.addPill} activeOpacity={0.8}>
-              <Text style={styles.addPillText}>＋Add</Text>
+            <TouchableOpacity style={styles.addBtn} activeOpacity={0.8}>
+              <Text style={styles.addText}>＋ Add</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={{ marginTop: 10 }}>
-            {reminders.map((r, i) => (
+          <View style={styles.reminderList}>
+            {reminders.map((item, i) => (
               <Text key={i} style={styles.bullet}>
-                • <Text style={styles.bulletText}>{r}</Text>
+                • <Text style={styles.bulletText}>{item}</Text>
               </Text>
             ))}
           </View>
         </View>
       </View>
-      </SafeAreaView>
+    </SafeAreaView>
   );
 }
 
 /* ===== Styles ===== */
 const styles = StyleSheet.create({
-  // layout & theme
-  background: {
+  screen: {
     flex: 1,
-    width: '100%',
-    height: '100%',
-    paddingTop: 26,
-    backgroundColor:'#E9E3D5',
+    backgroundColor: "#E9E3D5",
+    paddingTop: 8,
   },
-  brandBrown: { color: '#5B3C2E' },
-  brandAccent: { color: '#E0916C' },
 
-  // header
-  header: {
-    width: '100%',
-    paddingHorizontal: 24,
-    marginTop: 18,
-    marginBottom: 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  pageTitle: {
+    fontFamily: "Fredoka",
+    fontSize: 32,
+    fontWeight: "900",
+    color: "#5B3C2E",
+    paddingHorizontal: 20,
+    marginTop: 12,
   },
-  headerTitle: {
-    fontFamily: 'Fredoka',
-    fontSize: 28,
-    color: '#5B3C2E',
-    fontWeight: '900',
-  },
-  catBadge: {
-    width: 56,
-    height: 56,
-    backgroundColor: '#E0916C',
-    borderTopLeftRadius: 18,
-    borderBottomLeftRadius: 18,
-    borderBottomRightRadius: 18,
-    borderTopRightRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  catIcon: { width: 34, height: 34, resizeMode: 'contain' },
 
-  // main card
   card: {
-    marginTop: 10,
-    marginHorizontal: 20,
-    backgroundColor: '#ffffff',
-    borderRadius: 30,
-    paddingVertical: 18,
+    marginTop: 12,
+    marginHorizontal: 16,
+    backgroundColor: "#fff",
+    borderRadius: 36,
+    paddingVertical: 28,
     paddingHorizontal: 18,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.06,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 6 },
   },
 
-  dateText: {
-    fontFamily: 'Fredoka',
-    textAlign: 'center',
-    fontSize: 18,
-    color: '#5B3C2E',
-    fontWeight: '800',
+  date: {
+    fontFamily: "Fredoka",
+    textAlign: "center",
+    fontSize: 22,
+    color: "#5B3C2E",
+    fontWeight: "900",
   },
-  year: { color: '#5B3C2E', fontWeight: '700' },
+  year: { color: "#5B3C2E", fontWeight: "900" },
 
-  heroRow: {
-    marginTop: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
+  hero: {
+    marginTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 14,
   },
-  bigEmoji: { fontSize: 64 },
-  bigTemp: {
-    fontSize: 82,
-    color: '#E8A93A',
-    fontWeight: '900',
-    lineHeight: 84,
+  weatherIcon: { width: 96, height: 96, resizeMode: "contain" },
+  temp: {
+    fontFamily: "Fredoka",
+    fontSize: 100,
+    color: "#E8A93A",
+    fontWeight: "900",
+    lineHeight: 100,
   },
-  deg: { color: '#5B3C2E' },
+  deg: { fontFamily: "Fredoka", fontSize: 48, color: "#5B3C2E" },
   condition: {
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 6,
-    fontSize: 18,
-    color: '#5B3C2E',
-    fontWeight: '800',
+    fontSize: 22,
+    color: "#5B3C2E",
+    fontWeight: "900",
   },
 
   divider: {
     height: 4,
-    width: '86%',
-    alignSelf: 'center',
-    backgroundColor: '#e6ddcf',
+    width: "86%",
+    alignSelf: "center",
+    backgroundColor: "#e6ddcf",
     borderRadius: 8,
-    marginTop: 12,
+    marginTop: 14,
     marginBottom: 10,
-    opacity: 0.8,
+    opacity: 0.9,
   },
 
-  // mini-cards
   subCard: {
-    borderRadius: 22,
+    borderRadius: 24,
     borderWidth: 2,
-    borderColor: '#d8d4ce',
+    borderColor: "#d8d4ce",
     padding: 14,
     marginTop: 6,
   },
   subTitle: {
-    fontFamily: 'Fredoka',
+    fontFamily: "Fredoka",
     fontSize: 20,
-    color: '#5B3C2E',
-    fontWeight: '900',
-    marginBottom: 4,
+    color: "#5B3C2E",
+    fontWeight: "900",
+    marginBottom: 6,
   },
 
-  // hourly tiles
-  hourCol: {
-    width: 70,
+  hourList: { paddingVertical: 6 },
+  hourBox: {
+    width: 76,
     marginRight: 10,
-    alignItems: 'center',
-    backgroundColor: '#faf8f6',
+    alignItems: "center",
+    backgroundColor: "#FAF8F6",
     paddingVertical: 10,
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#eee6dc',
+    borderColor: "#EEE6DC",
   },
-  hourTop: {
-    color: '#5B3C2E',
-    fontWeight: '900',
-    letterSpacing: 0.3,
+  hourText: {
+    fontFamily: "Fredoka",
+    fontSize: 14,
+    color: "#5B3C2E",
+    fontWeight: "900",
   },
-  amPm: { 
+  periodText: {
     fontSize: 12,
-    fontWeight: '800',
-    color: '#5B3C2E',
-    opacity: 0.85
+    fontWeight: "900",
+    color: "#5B3C2E",
+    opacity: 0.85,
   },
-  hourEmoji: {
-    fontSize: 20,
-    marginVertical: 4
-  },
-  hourTemp: { 
-    color: '#5B3C2E',
-    fontWeight: '900'
+  hourIcon: { width: 28, height: 28, resizeMode: "contain", marginVertical: 6 },
+  hourTemp: {
+    fontFamily: "Fredoka",
+    color: "#5B3C2E",
+    fontWeight: "900",
+    fontSize: 16,
   },
 
-  // reminders
   reminderHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  addPill: {
-    backgroundColor: '#E0916C',
-    paddingHorizontal: 14,
+  addBtn: {
+    backgroundColor: "#E0916C",
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 14,
   },
-  addPillText: {
-    color: '#fff',
-    fontWeight: '900',
+  addText: {
+    color: "#fff",
+    fontWeight: "900",
     fontSize: 14,
+    fontFamily: "Fredoka",
   },
+
+  reminderList: { marginTop: 4 },
   bullet: { marginTop: 8, paddingLeft: 6 },
   bulletText: {
-    color: '#5B3C2E',
+    color: "#5B3C2E",
     fontSize: 16,
-    fontWeight: '900',
+    fontWeight: "900",
+    fontFamily: "Fredoka",
   },
 });

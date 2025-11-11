@@ -6,13 +6,13 @@ export default function NavBar({ page, navigation }) {
     <View style={[styles.navBar]}>
       {/* Tasks Button */}
       <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Calendar")}>
-        <Image source={require("../assets/icons/calendar_icon.png")} style={styles.navIcon} />
+        <Image source={require("../assets/icons/calendar-icon.png")} style={styles.navIcon} />
         <Text style={styles.navText}>Calendar</Text>
       </TouchableOpacity>
 
       {/* Tasks Button */}
       <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Tasks")}>
-        <Image source={require("../assets/icons/checklist_icon.png")} style={styles.navIcon} />
+        <Image source={require("../assets/icons/checklist-icon.png")} style={styles.navIcon} />
         <Text style={styles.navText}>Tasks</Text>
       </TouchableOpacity>
 
@@ -27,7 +27,7 @@ export default function NavBar({ page, navigation }) {
               onPress={() => navigation.navigate("Home")}
             >
               <View style={styles.homeContent}>
-                <Image source={require("../assets/icons/cat_icon.png")} style={styles.homeIcon} resizeMode="contain" />
+                <Image source={require("../assets/icons/cat-icon.png")} style={styles.homeIcon} resizeMode="contain" />
                 <Text style={styles.homeLabel}>Home</Text>
               </View>
             </TouchableOpacity>
@@ -37,13 +37,13 @@ export default function NavBar({ page, navigation }) {
 
       {/* Weather Button */}
       <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Weather")}>
-        <Image source={require("../assets/icons/weather_icon.png")} style={styles.navIcon} />
+        <Image source={require("../assets/icons/weather-icon.png")} style={styles.navIcon} />
         <Text style={styles.navText}>Weather</Text>
       </TouchableOpacity>
 
       {/* Notes Button */}
       <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Notes")}>
-        <Image source={require("../assets/icons/cards_icon.png")} style={styles.navIcon} />
+        <Image source={require("../assets/icons/cards-icon.png")} style={styles.navIcon} />
         <Text style={styles.navText}>Notes</Text>
       </TouchableOpacity>
     </View>

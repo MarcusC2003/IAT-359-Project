@@ -70,7 +70,7 @@ export default function SignInScreen() {
       >
         <View style={styles.card}>
           <View style={styles.logoContainer}>
-            <Image source={require("../assets/icons/cat_icon.png")} style={styles.logoIcon} />
+            <Image source={require("../assets/icons/cat-icon.png")} style={styles.logoIcon} />
           </View>
 
           <Text style={styles.title}>Welcome Back</Text>

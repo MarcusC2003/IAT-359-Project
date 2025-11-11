@@ -4,11 +4,12 @@ import {
   View,
   Text,
   ScrollView,
-  SafeAreaView,
   Platform,
   TouchableOpacity,
   Image,
 } from 'react-native';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // --- Color Palette (Updated to match your guide's colors) ---
 const colors = {
@@ -26,7 +27,7 @@ const TaskItem = ({ text }) => {
   return (
     <View style={styles.taskItem}>
       <Image
-        source={require('../assets/icons/circle_icon_notes.png')}
+        source={require('../assets/icons/circle-icon-notes.png')}
         style={styles.checkbox}
       />
       <Text style={styles.taskText}>{text}</Text>
@@ -39,15 +40,6 @@ const TaskItem = ({ text }) => {
 export default function TaskScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        {/* UPDATED: Using style 'iconWrapper' from your guide */}
-        <View style={styles.iconWrapper}>
-          <Image
-            source={require('../assets/icons/cat_icon.png')}
-            // UPDATED: Using style 'homeIcon' from your guide
-            style={styles.homeIcon}
-          />
-        </View>
 
         {/* Header Section (Unchanged) */}
         <View style={styles.mainHeader}>
@@ -65,7 +57,7 @@ export default function TaskScreen({ navigation }) {
            <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Actions for today!</Text>
             <Image
-              source={require('../assets/icons/flag_icon.png')}
+              source={require('../assets/icons/flag-icon.png')}
               style={styles.flagIcon}
             />
           </View>
@@ -86,7 +78,6 @@ export default function TaskScreen({ navigation }) {
           <TaskItem text="Journal and try the best you can" />
         </ScrollView>
       
-      </View>
     </SafeAreaView>
   );
 }
