@@ -3,7 +3,7 @@
 import * as Location from "expo-location";
 import { Alert } from "react-native";
 
-// Weather icons --> will convert to svg later
+// Weather icons (will convert to svg later) 
 console.log("weatherAPI loaded");
 
 // Daytime weather icons
@@ -74,6 +74,7 @@ function buildUrl(latitude, longitude) {
 }
 
 /*
+  - location reference : https://docs.expo.dev/versions/latest/sdk/location/- 
   - Get location, fetch weather data, and parse response
   - Returns: { current, hourly } weather data
 */
@@ -101,7 +102,9 @@ export async function fetchWeatherData() {
       throw new Error("Incomplete weather data from API.");
     }
 
-    /* ----- Build sunrise/sunset lookup by day ----- */
+    /* 
+      - Get sunrise/sunset times for each day --> array
+     */
     const sunByDay = {};
     if (data.daily?.time && data.daily?.sunrise && data.daily?.sunset) {
       for (let i = 0; i < data.daily.time.length; i++) {
@@ -144,7 +147,7 @@ export async function fetchWeatherData() {
     const { label, icon } = mapWeatherCode(code, isNightAt(now));
     const current = { temp, label, icon };
 
-    /* ----- Hourly Forecast (next TIME_SLOTS slots) ----- */
+    /* ----- Hourly Forecast (all TIME_SLOTS slots) ----- */
     const times = data.hourly?.time || [];
     const temps = data.hourly?.temperature_2m || [];
     const codes = data.hourly?.weather_code || [];
@@ -173,7 +176,7 @@ export async function fetchWeatherData() {
     // Return parsed weather data
     return { current, hourly };
   } catch (err) {
-    // Handle API or location errors gracefully
+    // Handle API or location errors 
     Alert.alert("Error", err.message || "Failed to load weather data.");
     console.error("fetchWeatherData error:", err);
     return { current: null, hourly: [] };
