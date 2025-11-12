@@ -10,19 +10,35 @@ import {
   Pressable,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-/**
- * Replace these paths with your actual assets.
- * Example structure:
- *   /assets/pets/dog1.png
- *   /assets/pets/dog2.png
- *   /assets/pets/dog3.png
- */
 export const PETS = {
   cat1: require("../assets/images/pets/cat-1.png"),
   cat2: require("../assets/images/pets/cat-2.png"),
   cat3: require("../assets/images/pets/cat-3.png"),
 };
+
+// ---- Storage helpers ----
+const PET_STORAGE_KEY = "pet.selected";
+
+/** Load the saved pet key (returns defaultKey if none saved). */
+export async function loadSavedPet(defaultKey = "cat1") {
+  try {
+    const saved = await AsyncStorage.getItem(PET_STORAGE_KEY);
+    return saved || defaultKey;
+  } catch {
+    return defaultKey;
+  }
+}
+
+/** Save the selected pet key. */
+async function savePet(key) {
+  try {
+    await AsyncStorage.setItem(PET_STORAGE_KEY, key);
+  } catch (e) {
+    console.warn("[customizeRoom] Failed to save pet:", e);
+  }
+}
 
 // Imperative handle shared via module scope
 let _showPopup = null;
@@ -60,11 +76,13 @@ export default function CustomizeRoomPortal() {
     };
   }, []);
 
-  const handleClose = () => {
-    setVisible(false);
-  };
+  const handleClose = () => setVisible(false);
 
-  const handlePick = (petKey) => {
+  const handlePick = async (petKey) => {
+    // persist selection
+    await savePet(petKey);
+
+    // notify caller immediately
     try {
       onSelectRef.current && onSelectRef.current(petKey);
     } finally {
@@ -101,7 +119,7 @@ export default function CustomizeRoomPortal() {
           <Text style={styles.title}>choose a pet</Text>
 
           <View style={styles.row}>
-            {Object.entries(PETS).map(([key, src]) => (
+            {Object.entries(PETS).map(([key, src], idx) => (
               <TouchableOpacity
                 key={key}
                 style={styles.petCard}
@@ -111,9 +129,7 @@ export default function CustomizeRoomPortal() {
                 <View style={styles.petThumb}>
                   <Image source={src} style={styles.petImg} />
                 </View>
-                <Text style={styles.petLabel}>
-                  {key.replace("dog", "dog #")}
-                </Text>
+                <Text style={styles.petLabel}>{`dog #${idx + 1}`}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -133,10 +149,7 @@ const COLORS = {
 };
 
 const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.25)",
-  },
+  backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.25)" },
   cardWrap: {
     position: "absolute",
     left: 12,
@@ -146,24 +159,14 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: 22,
     overflow: "hidden",
-
-    // soft shadow
     shadowColor: "#000",
     shadowOpacity: 0.18,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 8,
   },
-  cardHeader: {
-    height: 56,
-    backgroundColor: COLORS.topBar,
-    justifyContent: "flex-end",
-  },
-  headerStripe: {
-    height: 4,
-    backgroundColor: COLORS.text,
-    opacity: 0.35,
-  },
+  cardHeader: { height: 56, backgroundColor: COLORS.topBar, justifyContent: "flex-end" },
+  headerStripe: { height: 4, backgroundColor: COLORS.text, opacity: 0.35 },
   closeBtn: {
     position: "absolute",
     right: 14,
@@ -174,33 +177,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  closeX: {
-    fontSize: 22,
-    color: COLORS.text,
-    opacity: 0.9,
-  },
-  cardBody: {
-    flex: 1,
-    paddingHorizontal: 18,
-    paddingTop: 18,
-    alignItems: "center",
-  },
-  title: {
-    fontFamily: "Fredoka",
-    fontSize: 26,
-    fontWeight: "800",
-    color: COLORS.text,
-    marginBottom: 14,
-  },
-  row: {
-    flexDirection: "row",
-    gap: 14,
-    marginTop: 6,
-  },
-  petCard: {
-    alignItems: "center",
-    width: 110,
-  },
+  closeX: { fontSize: 22, color: COLORS.text, opacity: 0.9 },
+  cardBody: { flex: 1, paddingHorizontal: 18, paddingTop: 18, alignItems: "center" },
+  title: { fontFamily: "Fredoka", fontSize: 26, fontWeight: "800", color: COLORS.text, marginBottom: 14 },
+  row: { flexDirection: "row", gap: 14, marginTop: 6 },
+  petCard: { alignItems: "center", width: 110 },
   petThumb: {
     width: 110,
     height: 110,
@@ -211,15 +192,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  petImg: {
-    width: 88,
-    height: 88,
-    resizeMode: "contain",
-  },
-  petLabel: {
-    marginTop: 8,
-    fontFamily: "Fredoka",
-    fontSize: 14,
-    color: COLORS.text,
-  },
+  petImg: { width: 88, height: 88, resizeMode: "contain" },
+  petLabel: { marginTop: 8, fontFamily: "Fredoka", fontSize: 14, color: COLORS.text },
 });
