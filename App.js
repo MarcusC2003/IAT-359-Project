@@ -20,6 +20,7 @@ import NavBar from "./src/components/NavBar";
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
+// main tabs whgen logged in
 function ProtectedTabs() {
   return (
     <Tab.Navigator
@@ -57,6 +58,7 @@ export default function App() {
     );
   }
 
+  // Navigation Stack 
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>

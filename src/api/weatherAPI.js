@@ -89,7 +89,7 @@ export async function fetchWeatherData() {
 
     // Get current location
     const { coords } = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.Lowest, // more reliable and faster
+      accuracy: Location.Accuracy.Lowest,// faster,dont need accuracy
     });
 
     // Fetch data from Open-Meteo
