@@ -1,6 +1,6 @@
 // customizeRoom.js
 import React, { useEffect, useRef, useState } from "react";
-import {Modal,View,Text,TouchableOpacity,Image,StyleSheet,Pressable} from "react-native";
+import {Modal,View,Text,TouchableOpacity,Image,StyleSheet} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const PET_LIST = {
@@ -9,7 +9,6 @@ export const PET_LIST = {
   Taro: require("../assets/images/pets/cat-3.png"),
 };
 
-// ---- Storage helpers ----
 /**
  * Load the saved pet key.
  * If nothing saved OR the value is invalid, return the provided default.
@@ -72,14 +71,14 @@ export default function CustomizeRoomPopUp() {
     }
   };
 
-  // Reference Modal:https://reactnative.dev/docs/modal#animationtype
+  // Reference Modal: https://docs.expo.dev/router/advanced/modals/
   return (
     <Modal
-  visible={visible}
-  animationType="fade"
-  transparent
-  onRequestClose={handleClose}
->
+    visible={visible}
+    animationType="fade"
+    transparent
+    onRequestClose={handleClose}
+  >
   {/* Backdrop */}
   <View style={styles.backdrop}>
     
@@ -139,8 +138,8 @@ const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.25)",
-    justifyContent: "center",     // center popup vertically
-    alignItems: "center",         // center popup horizontally
+    justifyContent: "center",  
+    alignItems: "center",      
   },
 
   // main popup container (used to be cardWrap)
@@ -148,7 +147,7 @@ const styles = StyleSheet.create({
     width: "95%",
     backgroundColor: COLORS.white,
     borderRadius: 22,
-    overflow: "hidden",
+    overflow: "hidden",//clip content
     shadowColor: "#000",
     shadowOpacity: 0.18,
     shadowRadius: 12,
