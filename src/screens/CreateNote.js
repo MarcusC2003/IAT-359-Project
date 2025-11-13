@@ -10,7 +10,7 @@ import {
   TouchableWithoutFeedback, // For tapping background to close the keyboard
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { db } from '../FirebaseConfig'; 
+import { db } from '../utils/firebaseConfig'; 
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 
 // --- Color Palette ---

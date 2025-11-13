@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useIsFocused } from '@react-navigation/native';
 
 
-import { db } from '../FirebaseConfig'; 
+import { db } from '../utils/firebaseConfig'; 
 import { collection, getDocs } from 'firebase/firestore';
 
 // --- Color Palette ---
@@ -104,17 +104,7 @@ export default function NotesScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        
-        {/* --- TOP HEADER FIX --- */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Notes/Journal</Text>
-          <View style={styles.iconWrapper}>
-            <Image
-              source={require('../../assets/icons/cat_icon.png')} // Or your correct icon
-              style={styles.homeIcon}
-            />
-          </View>
-        </View>
+      
 
         {/* --- NOTES LIST --- */}
         <FlatList
@@ -135,52 +125,6 @@ export default function NotesScreen({ navigation }) {
           <Text style={styles.fabIcon}>+</Text>
         </TouchableOpacity>
 
-        {/* --- BOTTOM TAB BAR (Fixed) --- */}
-        <View style={styles.navBar}>
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Calendar')} // Make sure 'Calendar' screen exists
-          >
-            <Image
-              source={require('../../assets/icons/calendar_icon.png')}
-              style={styles.navIcon}
-            />
-            <Text style={styles.navText}>Calendar</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Tasks')}
-          >
-            <Image
-              source={require('../../assets/icons/checklist_icon.png')}
-              style={styles.navIcon}
-            />
-            <Text style={styles.navText}>To-dos</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Photos')} // Make sure 'Photos' screen exists
-          >
-            <Image
-              source={require('../../assets/icons/photo_icon.png')}
-              style={styles.navIcon}
-            />
-            <Text style={styles.navText}>Photos</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Notes')} // Stays on this screen
-          >
-            <Image
-              source={require('../../assets/icons/cards_icon.png')}
-              style={styles.navIcon}
-            />
-            <Text style={styles.navText}>Notes</Text>
-          </TouchableOpacity>
-        </View>
 
       </View>
     </SafeAreaView>
@@ -280,30 +224,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     resizeMode: 'contain',
-  },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: colors.primary,
-    width: '100%',
-    paddingVertical: 14,
-    position: 'absolute',
-    bottom: 0,
-    height: 90,
-  },
-  navItem: {
-    alignItems: 'center',
-  },
-  navIcon: {
-    width: 24,
-    height: 24,
-    marginBottom: 4,
-    resizeMode: 'contain',
-  },
-  navText: {
-    fontSize: 12,
-    color: colors.white,
-    fontWeight: '500',
   },
   fab: {
     position: 'absolute',

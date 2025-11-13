@@ -5,11 +5,8 @@ import {
   Text,
   ScrollView,
   Platform,
-  TouchableOpacity,
   Image,
 } from 'react-native';
-
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -43,13 +40,6 @@ export default function TaskScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <View style={styles.iconWrapper}>
-          <Image
-            source={require('../../assets/icons/cat_icon.png')}
-            style={styles.homeIcon}
-          />
-        </View>
-
         <View style={styles.mainHeader}>
           <Text style={styles.appTitle}>Palananner</Text>
           <Text style={styles.appDescription}>
@@ -86,51 +76,6 @@ export default function TaskScreen({ navigation }) {
           <TaskItem text="Journal and try the best you can" />
         </ScrollView>
 
-        <View style={styles.navBar}>
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Calendar')} 
-          >
-            <Image
-              source={require('../../assets/icons/calendar_icon.png')}
-              style={styles.navIcon} 
-            />
-            <Text style={styles.navText}>Calender</Text> 
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Tasks')} 
-          >
-            <Image
-              source={require('../../assets/icons/checklist_icon.png')}
-              style={styles.navIcon}
-            />
-            <Text style={styles.navText}>To-dos</Text> 
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Photos')} 
-          >
-            <Image
-              source={require('../../assets/icons/photo_icon.png')}
-              style={styles.navIcon} 
-            />
-            <Text style={styles.navText}>Photos</Text> 
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.navItem}
-            onPress={() => navigation.navigate('Notes')} 
-          >
-            <Image
-              source={require('../../assets/icons/cards_icon.png')}
-              style={styles.navIcon} 
-            />
-            <Text style={styles.navText}>Notes</Text>
-          </TouchableOpacity>
-        </View>
       </View>
     </SafeAreaView>
   );
@@ -227,30 +172,5 @@ const styles = StyleSheet.create({
     height: 40,
     resizeMode: 'contain',
   },
-  navBar: {
 
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: colors.primary,
-    width: '100%',
-    paddingVertical: 14,
-    position: 'absolute',
-    bottom: 0,
-    height: 90,
-  },
-  navItem: {
- 
-    alignItems: 'center',
-  },
-  navIcon: {
-    width: 24,
-    height: 24,
-    marginBottom: 4,
-    resizeMode: 'contain', 
-  },
-  navText: {
-    fontSize: 12,
-    color: colors.white,
-    fontWeight: '500',
-  },
 });
