@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   View,
@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
+import { useState, useEffect }  from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useIsFocused } from '@react-navigation/native';
 
@@ -29,6 +30,7 @@ const colors = {
   borderColor: '#e0e0e0',
 };
 
+// Reference: https://docs.expo.dev/guides/icons/
 // --- Reusable Note Card Component ---
 const NoteCard = ({ title, date, iconName, cardTitle, cardText }) => {
   const { MaterialCommunityIcons } = require('@expo/vector-icons');
@@ -57,7 +59,7 @@ export default function NotesScreen({ navigation }) {
   const [notes, setNotes] = useState([]);
   const isFocused = useIsFocused(); // Hook to check if screen is active
 
-  //  1. Load notes from FIREBASE
+  // Load notes from FIREBASE
   const loadNotes = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "notes"));
@@ -73,14 +75,14 @@ export default function NotesScreen({ navigation }) {
     }
   };
 
-  //2. Reload notes when screen is focused
+  //Reload notes when screen is focused
   useEffect(() => {
     if (isFocused) {
       loadNotes();
     }
   }, [isFocused]);
 
-  //3. Render function for each note
+  // Render function for each note
   const renderNote = ({ item }) => (
     // This makes each note clickable
     <TouchableOpacity
@@ -100,13 +102,13 @@ export default function NotesScreen({ navigation }) {
   );
 
 
-  //4. Render the screen
+  // Render the screen
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
       
 
-        {/* --- NOTES LIST --- */}
+        {/* --- Notes List --- */}
         <FlatList
           data={notes}
           renderItem={renderNote}
@@ -117,7 +119,7 @@ export default function NotesScreen({ navigation }) {
           }
         />
 
-        {/* --- "CREATE NOTE" BUTTON (FAB) --- */}
+        {/* --- "Create Note" Button (FAB) --- */}
         <TouchableOpacity
           style={styles.fab}
           onPress={() => navigation.navigate('CreateNote')} // Navigates with no 'note' object
@@ -131,7 +133,7 @@ export default function NotesScreen({ navigation }) {
   );
 }
 
-// --- STYLESHEET ---
+// --- StyleSheet ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,

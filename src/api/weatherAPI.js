@@ -74,7 +74,7 @@ function buildUrl(latitude, longitude) {
 }
 
 /*
-  - location reference : https://docs.expo.dev/versions/latest/sdk/location/- 
+  - location reference : https://docs.expo.dev/versions/latest/sdk/location 
   - Get location, fetch weather data, and parse response
   - Returns: { current, hourly } weather data
 */

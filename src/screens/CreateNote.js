@@ -25,17 +25,17 @@ const colors = {
 // --- Main Component ---
 export default function CreateNoteScreen({ navigation, route }) {
   
-  // 1. Check if we are editing
+  //  Check if we are editing
   // 'route.params' contains the 'note' object we passed from the list screen
   const noteToEdit = route.params?.note;
   const isEditing = !!noteToEdit; // true if we are editing, false if creating
 
-  // 2. Set initial state
+  // Set initial state
   // If editing, pre-fill state with the note's data. Otherwise, start empty.
   const [noteTitle, setNoteTitle] = useState(noteToEdit ? noteToEdit.title : '');
   const [noteText, setNoteText] = useState(noteToEdit ? noteToEdit.text : '');
 
-  //3. Set the header title based on mode
+  // Set the header title based on mode
   useEffect(() => {
     navigation.setOptions({
       title: isEditing ? 'Edit Note' : 'Create Note',
@@ -43,7 +43,7 @@ export default function CreateNoteScreen({ navigation, route }) {
   }, [navigation, isEditing]);
 
 
-  // 4. Save/Update Function
+  //  Save/Update Function
   const saveNote = async () => {
     // Check for empty fields first
     if (noteTitle.trim().length === 0 || noteText.trim().length === 0) {
@@ -65,7 +65,7 @@ export default function CreateNoteScreen({ navigation, route }) {
         });
 
       } else {
-        // --- CREATE LOGIC (Firebase) ---
+        // ---  Firebase Logic ---
         await addDoc(collection(db, "notes"), {
           title: noteTitle,
           text: noteText,
@@ -86,7 +86,7 @@ export default function CreateNoteScreen({ navigation, route }) {
   }; // --- End of saveNote function ---
 
   
-  // 5. Render the screen
+  // Render the screen
   return (
     // This wrapper dismisses the keyboard when you tap outside the text boxes
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
