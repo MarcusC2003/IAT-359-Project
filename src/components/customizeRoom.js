@@ -4,6 +4,7 @@ import {Modal,View,Text,TouchableOpacity,Image,StyleSheet} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const PET_LIST = {
+  Tubby: require("../assets/images/pets/Tubby.png"),
   Bartholemeu: require("../assets/images/pets/Cat-Orange.png"),
   Miso: require("../assets/images/pets/Cat-White.png"),
   Taro: require("../assets/images/pets/Dog-Shiba.png"),

@@ -5,24 +5,23 @@ import {
   Text,
   ScrollView,
   Platform,
-  TouchableOpacity,
   Image,
 } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// --- Color Palette (Updated to match your guide's colors) ---
+// --- Color Palette---
 const colors = {
   background: '#f7f1eb',
-  primary: '#E0916C', // From your guide's 'iconWrapper' and 'navBar'
+  primary: '#E0916C', 
   textPrimary: '#5c3a2c',
   textSecondary: '#8a8a8a',
-  white: '#fff', // From your guide's 'navText'
+  white: '#fff', 
   checkboxBorder: '#e09a80',
   checkboxText: '#5c3a2c',
 };
 
-// --- Reusable Task Item Component (Unchanged) ---
+// --- Task Item Component---
 const TaskItem = ({ text }) => {
   return (
     <View style={styles.taskItem}>
@@ -36,12 +35,11 @@ const TaskItem = ({ text }) => {
 };
 
 // --- Main TaskScreen Component ---
-// UPDATED: Added { navigation } prop
+// Added { navigation } prop
 export default function TaskScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safeArea}>
-
-        {/* Header Section (Unchanged) */}
+      <View style={styles.container}>
         <View style={styles.mainHeader}>
           <Text style={styles.appTitle}>Palananner</Text>
           <Text style={styles.appDescription}>
@@ -50,9 +48,9 @@ export default function TaskScreen({ navigation }) {
           </Text>
         </View>
 
-        {/* Scrollable Task Content (Unchanged) */}
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* ... (All your TaskItem components remain here) ... */}
+
+
            {/* Actions for today! */}
            <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Actions for today!</Text>
@@ -77,14 +75,15 @@ export default function TaskScreen({ navigation }) {
           </View>
           <TaskItem text="Journal and try the best you can" />
         </ScrollView>
-      
+
+      </View>
     </SafeAreaView>
   );
 }
 
-// --- Stylesheet (Merged) ---
+// --- Stylesheet ---
 const styles = StyleSheet.create({
-  // --- Styles from your TaskScreen ---
+
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
@@ -112,7 +111,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 25,
-    paddingBottom: 100, // Space for the navBar
+    paddingBottom: 100, 
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -148,9 +147,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  // --- STYLES UPDATED TO MATCH YOUR GUIDE ---
   iconWrapper: {
-    // These styles are from your guide
+ 
     width: 60,
     height: 60,
     backgroundColor: colors.primary, // '#E0916C'
@@ -162,44 +160,17 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
-    // These styles are kept from TaskScreen for positioning
+ 
     position: 'absolute',
     top: Platform.OS === 'ios' ? 10 : 20,
     right: 20,
     zIndex: 10,
   },
   homeIcon: {
-    // From your guide
+
     width: 40,
     height: 40,
     resizeMode: 'contain',
   },
-  navBar: {
-    // From your guide
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: colors.primary, // '#E0916C'
-    width: '100%',
-    paddingVertical: 14,
-    position: 'absolute',
-    bottom: 0,
-    height: 90,
-  },
-  navItem: {
-    // From your guide
-    alignItems: 'center',
-  },
-  navIcon: {
-    // From your guide
-    width: 24,
-    height: 24,
-    marginBottom: 4,
-    resizeMode: 'contain', // Added this for good measure
-  },
-  navText: {
-    // From your guide
-    fontSize: 12,
-    color: colors.white, // '#fff'
-    fontWeight: '500',
-  },
+
 });

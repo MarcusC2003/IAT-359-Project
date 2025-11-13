@@ -3,30 +3,36 @@ import {
   StyleSheet,
   View,
   Text,
-  ScrollView,
-  SafeAreaView,
+  FlatList,
   Platform,
   Image,
-  TouchableOpacity, // <-- Added
+  TouchableOpacity,
 } from 'react-native';
+import { useState, useEffect }  from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useIsFocused } from '@react-navigation/native';
 
-// Removed MaterialCommunityIcons
 
-// --- Color Palette (Merged from your guide) ---
+import { db } from '../utils/firebaseConfig'; 
+import { collection, getDocs } from 'firebase/firestore';
+
+// --- Color Palette ---
 const colors = {
   background: '#f7f1eb',
+  primary: '#e09a80',
   headerText: '#5c3a2c',
-  primary: '#E0916C', // From your guide's 'navBar'
-  white: '#fff', // From your guide's 'navText'
+  textPrimary: '#5c3a2c',
+  textSecondary: '#8a8a8a',
   card: '#ffffff',
-  cardTitle: 'rgba(60, 30, 20, 0.15)',
-  cardText: 'rgba(60, 30, 20, 0.4)',
+  inputBackground: '#f6f6f6',
+  white: '#ffffff',
+  black: '#333333',
+  borderColor: '#e0e0e0',
 };
 
+// Reference: https://docs.expo.dev/guides/icons/
 // --- Reusable Note Card Component ---
 const NoteCard = ({ title, date, iconName, cardTitle, cardText }) => {
-  // This component uses MaterialCommunityIcons, so we'll import it here
-  // for local use just inside this component.
   const { MaterialCommunityIcons } = require('@expo/vector-icons');
 
   return (
@@ -36,8 +42,7 @@ const NoteCard = ({ title, date, iconName, cardTitle, cardText }) => {
           <Text style={styles.noteTitle}>{title}</Text>
           <Text style={styles.noteDate}>{date}</Text>
         </View>
-        {/* This icon is for the pin/list, not the tab bar, so it's okay. */}
-        <MaterialCommunityIcons name={iconName} size={24} color={colors.headerText} />
+        <MaterialCommunityIcons name={iconName || "format-list-bulleted"} size={24} color={colors.headerText} />
       </View>
 
       <View style={styles.card}>
@@ -48,57 +53,88 @@ const NoteCard = ({ title, date, iconName, cardTitle, cardText }) => {
   );
 };
 
+
 // --- Main NotesScreen Component ---
-// UPDATED: Fixed function name and navigation prop
 export default function NotesScreen({ navigation }) {
+  const [notes, setNotes] = useState([]);
+  const isFocused = useIsFocused(); // Hook to check if screen is active
+
+  // Load notes from FIREBASE
+  const loadNotes = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "notes"));
+      const loadedNotes = [];
+      querySnapshot.forEach((doc) => {
+        // 'doc.id' is the unique ID. 'doc.data()' is the object
+        loadedNotes.push({ id: doc.id, ...doc.data() });
+      });
+      // Sort notes to show newest first
+      setNotes(loadedNotes.sort((a, b) => (b.date > a.date ? 1 : -1)));
+    } catch (e) {
+      console.error('Failed to load notes from Firestore.', e);
+    }
+  };
+
+  //Reload notes when screen is focused
+  useEffect(() => {
+    if (isFocused) {
+      loadNotes();
+    }
+  }, [isFocused]);
+
+  // Render function for each note
+  const renderNote = ({ item }) => (
+    // This makes each note clickable
+    <TouchableOpacity
+      onPress={() => {
+        // Navigate to CreateNote, passing the 'item' object as a parameter
+        navigation.navigate('CreateNote', { note: item });
+      }}
+    >
+      <NoteCard
+        title={item.title}
+        date={item.date}
+        iconName={item.iconName}
+        cardTitle={item.title}
+        cardText={item.text}
+      />
+    </TouchableOpacity>
+  );
+
+
+  // Render the screen
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* 1. TOP HEADER */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Notes/Journal</Text>
-          {/* UPDATED: Applied 'iconWrapper' style from your guide */}
-          <View style={styles.iconWrapper}>
-            <Image
-              source={require('../assets/icons/cat-icon.png')}
-              // UPDATED: Applied 'homeIcon' style from your guide
-              style={styles.homeIcon}
-            />
-          </View>
-        </View>
+      
 
-        {/* 2. SCROLLABLE CONTENT (Unchanged) */}
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <NoteCard
-            title="Project proposal"
-            date="13/10"
-            iconName="pin-outline"
-            cardTitle="Project proposal"
-            cardText="The adhd friendly app that has your calendar, to dos, weather, notes all in your custom room"
-          />
-          <NoteCard
-            title="Birthday with bestie"
-            date="12/10"
-            iconName="format-list-bulleted"
-            cardTitle="IT was so funn"
-            cardText="We had such a wonderful time and it was so nice to be able to check up again..."
-          />
-          <NoteCard
-            title="Birthday with bestie"
-            date="12/10"
-            iconName="pin-outline"
-            cardTitle=""
-            cardText=""
-          />
-        </ScrollView>
+        {/* --- Notes List --- */}
+        <FlatList
+          data={notes}
+          renderItem={renderNote}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.scrollContainer}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>No notes yet. Add one!</Text>
+          }
+        />
+
+        {/* --- "Create Note" Button (FAB) --- */}
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => navigation.navigate('CreateNote')} // Navigates with no 'note' object
+        >
+          <Text style={styles.fabIcon}>+</Text>
+        </TouchableOpacity>
+
+
       </View>
     </SafeAreaView>
   );
 }
 
-// --- Stylesheet (Merged) ---
+// --- StyleSheet ---
 const styles = StyleSheet.create({
-  // --- Page-specific styles ---
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
@@ -123,7 +159,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     paddingHorizontal: 20,
     paddingTop: 10,
-    paddingBottom: 100, // Make room for navBar
+    paddingBottom: 100,
   },
   noteContainer: {
     marginBottom: 25,
@@ -165,20 +201,18 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 40,
     fontWeight: 'bold',
-    color: colors.cardTitle,
+    color: 'rgba(60, 30, 20, 0.15)',
     marginBottom: 10,
   },
   cardText: {
     fontSize: 16,
-    color: colors.cardText,
+    color: 'rgba(60, 30, 20, 0.4)',
     lineHeight: 24,
   },
-
-  // --- STYLES FROM YOUR MAIN STYLE GUIDE ---
   iconWrapper: {
     width: 60,
     height: 60,
-    backgroundColor: colors.primary, // '#E0916C'
+    backgroundColor: colors.primary,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
@@ -193,28 +227,31 @@ const styles = StyleSheet.create({
     height: 40,
     resizeMode: 'contain',
   },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: colors.primary, // '#E0916C'
-    width: '100%',
-    paddingVertical: 14,
+  fab: {
     position: 'absolute',
-    bottom: 0,
-    height: 90,
-  },
-  navItem: {
+    width: 60,
+    height: 60,
     alignItems: 'center',
+    justifyContent: 'center',
+    right: 30,
+    bottom: 110, 
+    backgroundColor: colors.primary,
+    borderRadius: 30,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
   },
-  navIcon: {
-    width: 24,
-    height: 24,
-    marginBottom: 4,
-    resizeMode: 'contain',
+  fabIcon: {
+    fontSize: 30,
+    color: 'white',
+    lineHeight: 30,
   },
-  navText: {
-    fontSize: 12,
-    color: colors.white, // '#fff'
-    fontWeight: '500',
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 50,
+    fontSize: 16,
+    color: 'rgba(60, 30, 20, 0.4)',
   },
 });
