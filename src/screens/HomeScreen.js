@@ -2,6 +2,7 @@ import React from "react";
 import {View,Text,ImageBackground,StyleSheet,TouchableOpacity,Image} from "react-native";
 import { useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import { useFonts } from "expo-font";
 
 // Components
@@ -15,8 +16,8 @@ const COLORS = {
   navBg: "#E0916C",
   muted: "#FFFFFFFF",
 };
-// Set Default pet to Bartholemeu
-const DEFAULT_PET = "Bartholemeu";
+// Set Default pet to Tubby
+const DEFAULT_PET = "Tubby";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();

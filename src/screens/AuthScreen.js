@@ -137,13 +137,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-  },
-  scrollContainer: {
-    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 20,
+
   },
   headerIconContainer: {
     position: 'absolute',
@@ -163,19 +159,21 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   card: {
-    width: '100%',
-    maxWidth: 400,
+    flex:1,
+    width: '95%',
     backgroundColor: colors.card,
     borderRadius: 25,
     padding: 25,
     alignItems: 'center',
-    marginTop: 80, 
+    marginTop: 30, 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 15,
-    elevation: 5,
+    justifyContent: 'center',
+    alignContent: 'center',
   },
+
   logoContainer: {
     width: 70,
     height: 70,

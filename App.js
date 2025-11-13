@@ -5,6 +5,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { onAuthStateChanged } from "firebase/auth";
 import { firebase_auth } from "./src/utils/firebaseConfig";
+import * as Haptics from 'expo-haptics';
+
 
 // Screens
 import AuthScreen from "./src/screens/AuthScreen";
@@ -59,6 +61,13 @@ export default function App() {
     });
     return unsub;
   }, [initializing]);
+
+  // vibrate on login
+  useEffect(() => {
+    if (!initializing && user) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+  }, [initializing, user]);
 
   if (initializing) {
     return (
