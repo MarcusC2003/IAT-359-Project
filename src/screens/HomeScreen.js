@@ -75,7 +75,6 @@ export default function HomeScreen({ navigation }) {
           <Image
             source={require('../../assets/icons/cards_icon.png')}
             style={styles.navIcon}
-            // Removed onPress from here
           />
           <Text style={styles.navText}>Notes</Text>
         </TouchableOpacity>

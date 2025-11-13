@@ -3,7 +3,7 @@ import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
   initializeAuth, 
-  getReactNativePersistence // <-- Add it here
+  getReactNativePersistence
 } from "firebase/auth"; 
 
 import { getFirestore } from "firebase/firestore";
@@ -11,19 +11,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-   apiKey: "AIzaSyDPjRPsBp6_md3cJo6qx8pp8Btx7wEoEG0",
-  authDomain: "plannertesting-df25a.firebaseapp.com",
-  projectId: "plannertesting-df25a",
-  storageBucket: "plannertesting-df25a.firebasestorage.app",
-  messagingSenderId: "641196949913",
-  appId: "1:641196949913:web:b39b4248eba9bc2f355308"
+  apiKey: "AIzaSyC6KZ_yZGrJRfiY4qpaQqqYFW4x6915De4",
+  authDomain: "palanner-c8edc.firebaseapp.com",
+  projectId: "palanner-c8edc",
+  storageBucket: "palanner-c8edc.firebasestorage.app",
+  messagingSenderId: "375339816481",
+  appId: "1:375339816481:web:f5f9f63c38ea603e563560",
+  measurementId: "G-WPM56YT3W9"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize and export the services you'll use
-// This new block replaces 'export const auth = getAuth(app);'
 export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage)
 });

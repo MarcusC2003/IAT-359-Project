@@ -6,11 +6,11 @@ import {
   StyleSheet,
   Alert,
   Text,
-  Keyboard, // For dismissing keyboard
-  TouchableWithoutFeedback, // For tapping background
+  Keyboard, // For closing keyboard (Otherwise it stays up)
+  TouchableWithoutFeedback, // For tapping background to close the keyboard
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { db } from '../FirebaseConfig'; // <-- Make sure this path is correct
+import { db } from '../FirebaseConfig'; 
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 
 // --- Color Palette ---
@@ -25,17 +25,17 @@ const colors = {
 // --- Main Component ---
 export default function CreateNoteScreen({ navigation, route }) {
   
-  // --- 1. Check if we are editing ---
+  // 1. Check if we are editing
   // 'route.params' contains the 'note' object we passed from the list screen
   const noteToEdit = route.params?.note;
   const isEditing = !!noteToEdit; // true if we are editing, false if creating
 
-  // --- 2. Set initial state ---
+  // 2. Set initial state
   // If editing, pre-fill state with the note's data. Otherwise, start empty.
   const [noteTitle, setNoteTitle] = useState(noteToEdit ? noteToEdit.title : '');
   const [noteText, setNoteText] = useState(noteToEdit ? noteToEdit.text : '');
 
-  // --- 3. Set the header title based on mode ---
+  //3. Set the header title based on mode
   useEffect(() => {
     navigation.setOptions({
       title: isEditing ? 'Edit Note' : 'Create Note',
@@ -43,11 +43,11 @@ export default function CreateNoteScreen({ navigation, route }) {
   }, [navigation, isEditing]);
 
 
-  // --- 4. Save/Update Function ---
+  // 4. Save/Update Function
   const saveNote = async () => {
     // Check for empty fields first
     if (noteTitle.trim().length === 0 || noteText.trim().length === 0) {
-      Alert.alert('Error', 'Please fill out both title and text.');
+      Alert.alert('Error', 'Please fill out both title and text~');
       return; // Stop the function
     }
 
@@ -80,13 +80,13 @@ export default function CreateNoteScreen({ navigation, route }) {
 
     } catch (e) {
       // If save fails, show an error
-      console.error("Error saving document: ", e);
-      Alert.alert('Error', 'Could not save note to database.');
+      console.error("Error saving document's': ", e);
+      Alert.alert('Error', 'Could not save note to database...');
     }
   }; // --- End of saveNote function ---
 
   
-  // --- 5. Render the screen ---
+  // 5. Render the screen
   return (
     // This wrapper dismisses the keyboard when you tap outside the text boxes
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     padding: 15,
     fontSize: 16,
     height: 300,
-    textAlignVertical: 'top', // For Android
+    textAlignVertical: 'top', // we could take it out 
     marginBottom: 20,
     borderColor: '#ddd',
     borderWidth: 1,

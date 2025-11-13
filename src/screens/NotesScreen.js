@@ -8,18 +8,18 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context'; // <-- Correct import
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useIsFocused } from '@react-navigation/native';
 
-// --- Import Firebase ---
-import { db } from '../FirebaseConfig'; // <-- Make sure path is correct
+
+import { db } from '../FirebaseConfig'; 
 import { collection, getDocs } from 'firebase/firestore';
 
 // --- Color Palette ---
 const colors = {
   background: '#f7f1eb',
   primary: '#e09a80',
-  headerText: '#5c3a2c', // Added this from your styles
+  headerText: '#5c3a2c',
   textPrimary: '#5c3a2c',
   textSecondary: '#8a8a8a',
   card: '#ffffff',
@@ -57,7 +57,7 @@ export default function NotesScreen({ navigation }) {
   const [notes, setNotes] = useState([]);
   const isFocused = useIsFocused(); // Hook to check if screen is active
 
-  // --- 1. Load notes from FIREBASE ---
+  //  1. Load notes from FIREBASE
   const loadNotes = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "notes"));
@@ -73,14 +73,14 @@ export default function NotesScreen({ navigation }) {
     }
   };
 
-  // --- 2. Reload notes when screen is focused ---
+  //2. Reload notes when screen is focused
   useEffect(() => {
     if (isFocused) {
       loadNotes();
     }
   }, [isFocused]);
 
-  // --- 3. Render function for each note ---
+  //3. Render function for each note
   const renderNote = ({ item }) => (
     // This makes each note clickable
     <TouchableOpacity
@@ -100,12 +100,12 @@ export default function NotesScreen({ navigation }) {
   );
 
 
-  // --- 4. Render the screen ---
+  //4. Render the screen
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         
-        {/* --- TOP HEADER (Fixed) --- */}
+        {/* --- TOP HEADER FIX --- */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Notes/Journal</Text>
           <View style={styles.iconWrapper}>
@@ -187,7 +187,7 @@ export default function NotesScreen({ navigation }) {
   );
 }
 
-// --- COMPLETE STYLESHEET ---
+// --- STYLESHEET ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     paddingHorizontal: 20,
     paddingTop: 10,
-    paddingBottom: 100, // Make room for navBar
+    paddingBottom: 100,
   },
   noteContainer: {
     marginBottom: 25,
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     right: 30,
-    bottom: 110, // Positioned above the 90px navBar
+    bottom: 110, 
     backgroundColor: colors.primary,
     borderRadius: 30,
     elevation: 8,

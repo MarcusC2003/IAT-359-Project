@@ -10,18 +10,18 @@ import {
   Image,
 } from 'react-native';
 
-// --- Color Palette (Updated to match your guide's colors) ---
+// --- Color Palette---
 const colors = {
   background: '#f7f1eb',
-  primary: '#E0916C', // From your guide's 'iconWrapper' and 'navBar'
+  primary: '#E0916C', 
   textPrimary: '#5c3a2c',
   textSecondary: '#8a8a8a',
-  white: '#fff', // From your guide's 'navText'
+  white: '#fff', 
   checkboxBorder: '#e09a80',
   checkboxText: '#5c3a2c',
 };
 
-// --- Reusable Task Item Component (Unchanged) ---
+// --- Task Item Component---
 const TaskItem = ({ text }) => {
   return (
     <View style={styles.taskItem}>
@@ -35,21 +35,18 @@ const TaskItem = ({ text }) => {
 };
 
 // --- Main TaskScreen Component ---
-// UPDATED: Added { navigation } prop
+// Added { navigation } prop
 export default function TaskScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* UPDATED: Using style 'iconWrapper' from your guide */}
         <View style={styles.iconWrapper}>
           <Image
             source={require('../../assets/icons/cat_icon.png')}
-            // UPDATED: Using style 'homeIcon' from your guide
             style={styles.homeIcon}
           />
         </View>
 
-        {/* Header Section (Unchanged) */}
         <View style={styles.mainHeader}>
           <Text style={styles.appTitle}>Palananner</Text>
           <Text style={styles.appDescription}>
@@ -58,9 +55,9 @@ export default function TaskScreen({ navigation }) {
           </Text>
         </View>
 
-        {/* Scrollable Task Content (Unchanged) */}
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* ... (All your TaskItem components remain here) ... */}
+
+
            {/* Actions for today! */}
            <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Actions for today!</Text>
@@ -86,50 +83,49 @@ export default function TaskScreen({ navigation }) {
           <TaskItem text="Journal and try the best you can" />
         </ScrollView>
 
-        {/* UPDATED: Bottom Tab Bar to match your 'navBar' style guide */}
         <View style={styles.navBar}>
           <TouchableOpacity 
             style={styles.navItem}
-            onPress={() => navigation.navigate('Calendar')} // <-- Added navigation
+            onPress={() => navigation.navigate('Calendar')} 
           >
             <Image
               source={require('../../assets/icons/calendar_icon.png')}
-              style={styles.navIcon} // <-- Updated style name
+              style={styles.navIcon} 
             />
-            <Text style={styles.navText}>Calender</Text> {/* <-- Updated style name */}
+            <Text style={styles.navText}>Calender</Text> 
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.navItem}
-            onPress={() => navigation.navigate('Tasks')} // <-- Added navigation
+            onPress={() => navigation.navigate('Tasks')} 
           >
             <Image
               source={require('../../assets/icons/checklist_icon.png')}
-              style={styles.navIcon} // <-- Updated style name
+              style={styles.navIcon}
             />
-            <Text style={styles.navText}>To-dos</Text> {/* <-- Updated style name */}
+            <Text style={styles.navText}>To-dos</Text> 
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.navItem}
-            onPress={() => navigation.navigate('Photos')} // <-- Added navigation (Assuming 'Photos' is the name in App.js)
+            onPress={() => navigation.navigate('Photos')} 
           >
             <Image
               source={require('../../assets/icons/photo_icon.png')}
-              style={styles.navIcon} // <-- Updated style name
+              style={styles.navIcon} 
             />
-            <Text style={styles.navText}>Photos</Text> {/* <-- Updated style name */}
+            <Text style={styles.navText}>Photos</Text> 
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.navItem}
-            onPress={() => navigation.navigate('Notes')} // <-- Added navigation
+            onPress={() => navigation.navigate('Notes')} 
           >
             <Image
               source={require('../../assets/icons/cards_icon.png')}
-              style={styles.navIcon} // <-- Updated style name
+              style={styles.navIcon} 
             />
-            <Text style={styles.navText}>Notes</Text> {/* <-- Updated style name */}
+            <Text style={styles.navText}>Notes</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -137,9 +133,9 @@ export default function TaskScreen({ navigation }) {
   );
 }
 
-// --- Stylesheet (Merged) ---
+// --- Stylesheet ---
 const styles = StyleSheet.create({
-  // --- Styles from your TaskScreen ---
+
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
@@ -167,7 +163,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 25,
-    paddingBottom: 100, // Space for the navBar
+    paddingBottom: 100, 
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -203,9 +199,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  // --- STYLES UPDATED TO MATCH YOUR GUIDE ---
   iconWrapper: {
-    // These styles are from your guide
+ 
     width: 60,
     height: 60,
     backgroundColor: colors.primary, // '#E0916C'
@@ -217,23 +212,23 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
-    // These styles are kept from TaskScreen for positioning
+ 
     position: 'absolute',
     top: Platform.OS === 'ios' ? 10 : 20,
     right: 20,
     zIndex: 10,
   },
   homeIcon: {
-    // From your guide
+
     width: 40,
     height: 40,
     resizeMode: 'contain',
   },
   navBar: {
-    // From your guide
+
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: colors.primary, // '#E0916C'
+    backgroundColor: colors.primary,
     width: '100%',
     paddingVertical: 14,
     position: 'absolute',
@@ -241,20 +236,18 @@ const styles = StyleSheet.create({
     height: 90,
   },
   navItem: {
-    // From your guide
+ 
     alignItems: 'center',
   },
   navIcon: {
-    // From your guide
     width: 24,
     height: 24,
     marginBottom: 4,
-    resizeMode: 'contain', // Added this for good measure
+    resizeMode: 'contain', 
   },
   navText: {
-    // From your guide
     fontSize: 12,
-    color: colors.white, // '#fff'
+    color: colors.white,
     fontWeight: '500',
   },
 });
