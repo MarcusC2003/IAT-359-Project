@@ -11,6 +11,7 @@ import AuthScreen from "./src/screens/AuthScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import TaskScreen from "./src/screens/TaskScreen";
 import NotesScreen from "./src/screens/NotesScreen";
+import CreateNoteScreen from "./src/screens/CreateNote";
 import WeatherScreen from "./src/screens/WeatherScreen";
 import CalendarScreen from "./src/screens/CalendarScreen";
 
@@ -32,6 +33,7 @@ function ProtectedTabs() {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Tasks" component={TaskScreen} />
       <Tab.Screen name="Notes" component={NotesScreen} />
+      <Tab.Screen name="CreateNote" component={CreateNoteScreen} />
       <Tab.Screen name="Weather" component={WeatherScreen} />
       <Tab.Screen name="Calendar" component={CalendarScreen} />
     </Tab.Navigator>
