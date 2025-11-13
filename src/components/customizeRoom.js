@@ -1,88 +1,70 @@
 // customizeRoom.js
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Modal,
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-  Pressable,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {Modal,View,Text,TouchableOpacity,Image,StyleSheet,Pressable} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const PETS = {
-  cat1: require("../assets/images/pets/cat-1.png"),
-  cat2: require("../assets/images/pets/cat-2.png"),
-  cat3: require("../assets/images/pets/cat-3.png"),
+export const PET_LIST = {
+  Bartholemeu: require("../assets/images/pets/cat-1.png"),
+  Miso: require("../assets/images/pets/cat-2.png"),
+  Taro: require("../assets/images/pets/cat-3.png"),
 };
 
 // ---- Storage helpers ----
-const PET_STORAGE_KEY = "pet.selected";
-
-/** Load the saved pet key (returns defaultKey if none saved). */
-export async function loadSavedPet(defaultKey = "cat1") {
+/**
+ * Load the saved pet key.
+ * If nothing saved OR the value is invalid, return the provided default.
+ */
+export async function loadSavedPet(defaultKey) {
   try {
-    const saved = await AsyncStorage.getItem(PET_STORAGE_KEY);
-    return saved || defaultKey;
-  } catch {
+    const saved = await AsyncStorage.getItem('selectedPet');
+    if (!saved) return defaultKey;
+
+    return saved;
+  } catch (e) {
+    console.warn("Failed to load pet:", e);
     return defaultKey;
   }
 }
 
-/** Save the selected pet key. */
-async function savePet(key) {
+//Save selected pet key to storage.
+export async function savePet(key) {
   try {
-    await AsyncStorage.setItem(PET_STORAGE_KEY, key);
+    await AsyncStorage.setItem('selectedPet', key);
   } catch (e) {
-    console.warn("[customizeRoom] Failed to save pet:", e);
+    console.warn("Failed to save pet:", e);
   }
 }
 
-// Imperative handle shared via module scope
-let _showPopup = null;
-
-/**
- * Call this from anywhere (after <CustomizeRoomPortal/> is mounted):
- *   popUp({ onSelect: (petKey) => { ... } })
- */
+let showPopup = null;
+// Function: triggers the popup to show
 export function popUp({ onSelect } = {}) {
-  if (typeof _showPopup === "function") {
-    _showPopup(onSelect);
-  } else {
-    console.warn(
-      "[customizeRoom] popUp() called before <CustomizeRoomPortal/> was mounted."
-    );
+  if (typeof showPopup === "function") {
+    showPopup(onSelect);
   }
 }
 
-/**
- * Mount this component once (e.g., inside HomeScreen render tree).
- * It provides the modal UI and wires up the popUp() function.
- */
-export default function CustomizeRoomPortal() {
-  const insets = useSafeAreaInsets();
+// CustomizeRoomPopUp Component
+export default function CustomizeRoomPopUp() {
   const [visible, setVisible] = useState(false);
+  // Prevents re-rendering issues
   const onSelectRef = useRef(null);
 
   useEffect(() => {
-    _showPopup = (onSelect) => {
+    showPopup = (onSelect) => {
       onSelectRef.current = onSelect || null;
       setVisible(true);
     };
     return () => {
-      _showPopup = null;
+      showPopup = null;
     };
   }, []);
 
+  // Close the popup
   const handleClose = () => setVisible(false);
 
+  // Handle pet selection
   const handlePick = async (petKey) => {
-    // persist selection
     await savePet(petKey);
-
-    // notify caller immediately
     try {
       onSelectRef.current && onSelectRef.current(petKey);
     } finally {
@@ -90,52 +72,57 @@ export default function CustomizeRoomPortal() {
     }
   };
 
+  // Reference Modal:https://reactnative.dev/docs/modal#animationtype
   return (
     <Modal
-      visible={visible}
-      animationType="fade"
-      transparent
-      onRequestClose={handleClose}
-    >
-      {/* Backdrop */}
-      <Pressable style={styles.backdrop} onPress={handleClose} />
+  visible={visible}
+  animationType="fade"
+  transparent
+  onRequestClose={handleClose}
+>
+  {/* Backdrop */}
+  <View style={styles.backdrop}>
+    
+    {/* Pop-up */}  
+    <View style={styles.popupContainer}>
+      <View style={styles.popupHeader}>
+        <View style={styles.headerStripe} />
 
-      {/* Card */}
-      <View style={[styles.cardWrap, { paddingTop: insets.top + 8 }]}>
-        <View style={styles.cardHeader}>
-          <View style={styles.headerStripe} />
-          <TouchableOpacity
-            onPress={handleClose}
-            hitSlop={{ top: 10, left: 10, right: 10, bottom: 10 }}
-            style={styles.closeBtn}
-            accessibilityRole="button"
-            accessibilityLabel="Close"
-          >
-            <Text style={styles.closeX}>✕</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          onPress={handleClose}
+          hitSlop={{ top: 15, left: 15, right: 15, bottom: 15 }}
+          style={styles.closeBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Close"
+        >
+          <Text style={styles.closeX}>✕</Text>
+        </TouchableOpacity>
+      </View>
 
-        <View style={styles.cardBody}>
-          <Text style={styles.title}>choose a pet</Text>
+      <View style={styles.popupBody}>
+        <Text style={styles.title}>choose a pet</Text>
 
-          <View style={styles.row}>
-            {Object.entries(PETS).map(([key, src], idx) => (
-              <TouchableOpacity
-                key={key}
-                style={styles.petCard}
-                onPress={() => handlePick(key)}
-                activeOpacity={0.85}
-              >
-                <View style={styles.petThumb}>
-                  <Image source={src} style={styles.petImg} />
-                </View>
-                <Text style={styles.petLabel}>{`dog #${idx + 1}`}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+        {/* Pet Select Row */}
+        <View style={styles.row}>
+          {Object.entries(PET_LIST).map(([name, image]) => (
+            <TouchableOpacity
+              key={name}
+              style={styles.petCard}
+              onPress={() => handlePick(name)}
+              activeOpacity={0.85}
+            >
+              <View style={styles.petThumb}>
+                <Image source={image} style={styles.petImg} />
+              </View>
+              <Text style={styles.petLabel}>{name}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
-    </Modal>
+    </View>
+
+  </View>
+</Modal>
   );
 }
 
@@ -149,13 +136,16 @@ const COLORS = {
 };
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.25)" },
-  cardWrap: {
-    position: "absolute",
-    left: 12,
-    right: 12,
-    top: 0,
-    bottom: 12,
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.25)",
+    justifyContent: "center",     // center popup vertically
+    alignItems: "center",         // center popup horizontally
+  },
+
+  // main popup container (used to be cardWrap)
+  popupContainer: {
+    width: "95%",
     backgroundColor: COLORS.white,
     borderRadius: 22,
     overflow: "hidden",
@@ -165,8 +155,20 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     elevation: 8,
   },
-  cardHeader: { height: 56, backgroundColor: COLORS.topBar, justifyContent: "flex-end" },
-  headerStripe: { height: 4, backgroundColor: COLORS.text, opacity: 0.35 },
+
+  popupHeader: {
+    height: 56,
+    width: "100%",
+    backgroundColor: COLORS.topBar,
+    justifyContent: "flex-end",
+  },
+
+  headerStripe: {
+    height: 4,
+    backgroundColor: COLORS.text,
+    opacity: 0.35,
+  },
+
   closeBtn: {
     position: "absolute",
     right: 14,
@@ -177,14 +179,46 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  closeX: { fontSize: 22, color: COLORS.text, opacity: 0.9 },
-  cardBody: { flex: 1, paddingHorizontal: 18, paddingTop: 18, alignItems: "center" },
-  title: { fontFamily: "Fredoka", fontSize: 26, fontWeight: "800", color: COLORS.text, marginBottom: 14 },
-  row: { flexDirection: "row", gap: 14, marginTop: 6 },
-  petCard: { alignItems: "center", width: 110 },
+
+  closeX: {
+    fontSize: 22,
+    color: COLORS.text,
+    opacity: 0.9,
+  },
+
+  // content area (used to be cardBody)
+  popupBody: {
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 20,
+    alignItems: "center",
+    backgroundColor: COLORS.white,
+  },
+
+  title: {
+    fontFamily: "Fredoka",
+    fontSize: 26,
+    fontWeight: "800",
+    color: COLORS.text,
+    marginBottom: 14,
+  },
+
+  row: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 6,
+  },
+
+  petCard: {
+    alignItems: "center",
+    width: 100,
+  },
+
   petThumb: {
-    width: 110,
-    height: 110,
+    width: 100,
+    height: 100,
     borderRadius: 18,
     backgroundColor: "#E9DCD2",
     borderWidth: 3,
@@ -192,6 +226,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  petImg: { width: 88, height: 88, resizeMode: "contain" },
-  petLabel: { marginTop: 8, fontFamily: "Fredoka", fontSize: 14, color: COLORS.text },
+
+  petImg: {
+    width: 65,
+    height: 65,
+    resizeMode: "contain",
+  },
+
+  petLabel: {
+    marginTop: 8,
+    fontFamily: "Fredoka",
+    fontWeight: "600",
+    fontSize: 14,
+    color: COLORS.text,
+  },
 });

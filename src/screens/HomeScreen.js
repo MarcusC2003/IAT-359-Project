@@ -1,18 +1,12 @@
 import React from "react";
-import {
-  View,
-  Text,
-  ImageBackground,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import {View,Text,ImageBackground,StyleSheet,TouchableOpacity,Image} from "react-native";
+import { useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
-import NavBar from "../components/NavBar";
 
-// NEW: import popup + assets
-import CustomizeRoomPortal, { popUp, PETS } from "../components/customizeRoom";
+// Components
+import NavBar from "../components/NavBar";
+import CustomizeRoomPopUp, {popUp,PET_LIST,loadSavedPet} from "../components/customizeRoom";
 
 const COLORS = {
   bg: "#EFE6DE",
@@ -21,18 +15,32 @@ const COLORS = {
   navBg: "#E0916C",
   muted: "#FFFFFFFF",
 };
+// Set Default pet to Bartholemeu
+const DEFAULT_PET = "Bartholemeu";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+
   const [fontsLoaded] = useFonts({
     Fredoka: require("../assets/fonts/Fredoka.ttf"),
   });
 
-  // NEW: which pet is selected
-  const [pet, setPet] = React.useState("dog1");
+  /* Load saved pet 
+    if no pet is saved, default to DEFAULT_PET
+  */
+  const [pet, setPet] = useState(DEFAULT_PET);
+  useEffect(() => {
+    (async () => {
+      const saved = await loadSavedPet(); 
+      if (saved) {
+        setPet(saved);
+      } else {
+        setPet(DEFAULT_PET);
+      }
+    })();
+  }, []);
 
   if (!fontsLoaded) return null;
-
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -42,9 +50,11 @@ export default function HomeScreen() {
       >
         <View style={[styles.topBar, { paddingTop: insets.top }]} />
 
-        {/* --- Updated Pet Button: now opens popup --- */}
+        {/* Pet button opens popup
+        - Note: button is temporarily inside the topBar visually but will not be in the final design
+        */}
         <TouchableOpacity
-          style={[styles.petButton, { top: insets.top + 12 }]}
+          style={[styles.petButton]}
           activeOpacity={0.8}
           onPress={() => popUp({ onSelect: setPet })}
         >
@@ -55,37 +65,64 @@ export default function HomeScreen() {
             />
           </View>
         </TouchableOpacity>
-        {/* --------------------------- */}
 
+        {/* "Phrase is temporary" */}
         <Text style={styles.greeting}>Good morning, User</Text>
 
-        {/* NEW: show selected pet on the room */}
-        <Image source={PETS[pet]} style={styles.petSprite} />
+        {/* Show selected pet in the room */}
+        {pet && PET_LIST[pet] && (
+          <Image source={PET_LIST[pet]} style={styles.petSprite} />
+        )}
 
         <NavBar page="home" />
       </ImageBackground>
 
-      {/* NEW: mount the popup portal once */}
-      <CustomizeRoomPortal />
+      {/* PopUp*/}
+      <CustomizeRoomPopUp />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bg },
-  background: { flex: 1, alignItems: "center" },
-  topBar: { width: "100%", height: 60, backgroundColor: COLORS.topBar },
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+  },
 
-  petButton: { position: "absolute", right: 20, zIndex: 10, marginTop: 20 },
+  background: {
+    flex: 1,
+    alignItems: "center",
+  },
+
+  topBar: {
+    width: "100%",
+    height: 100,
+    backgroundColor: COLORS.topBar,
+
+  },
+
+  petButton: {
+    position: "absolute",
+    right: 15,
+    zIndex: 10,
+    marginTop: 45,
+  },
+
   petButtonCircle: {
-    width: 50,
-    height: 50,
+    width: 45,
+    height: 45,
     borderRadius: 25,
-    backgroundColor: COLORS.muted,
+    backgroundColor: COLORS.text,
     alignItems: "center",
     justifyContent: "center",
   },
-  petIcon: { width: 22, height: 22, resizeMode: "contain", tintColor: COLORS.topBar },
+
+  petIcon: {
+    width: 25,
+    height: 25,
+    resizeMode: "contain",
+    tintColor: "white",
+  },
 
   greeting: {
     fontFamily: "Fredoka",
@@ -93,17 +130,16 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: COLORS.text,
     textAlign: "center",
-    marginTop: 100,
+    marginTop: 30,
     marginBottom: "auto",
   },
 
-  
   petSprite: {
     position: "absolute",
-    bottom: 160,       
+    bottom: 200,
     alignSelf: "center",
-    width: 100,
-    height: 100,
+    width: 70,
+    height: 70,
     resizeMode: "contain",
     zIndex: 5,
   },
