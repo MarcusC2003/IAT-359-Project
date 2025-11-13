@@ -4,11 +4,14 @@ import {
   View,
   Text,
   ScrollView,
-  SafeAreaView,
   Platform,
   TouchableOpacity,
   Image,
 } from 'react-native';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // --- Color Palette---
 const colors = {
@@ -26,7 +29,7 @@ const TaskItem = ({ text }) => {
   return (
     <View style={styles.taskItem}>
       <Image
-        source={require('../../assets/icons/circle_icon_notes.png')}
+        source={require('../assets/icons/circle-icon-notes.png')}
         style={styles.checkbox}
       />
       <Text style={styles.taskText}>{text}</Text>
@@ -62,7 +65,7 @@ export default function TaskScreen({ navigation }) {
            <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Actions for today!</Text>
             <Image
-              source={require('../../assets/icons/flag_icon.png')}
+              source={require('../assets/icons/flag-icon.png')}
               style={styles.flagIcon}
             />
           </View>

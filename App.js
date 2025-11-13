@@ -1,75 +1,72 @@
-// App.js imports 
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, View } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { onAuthStateChanged } from "firebase/auth";
+import { firebase_auth } from "./src/utils/firebaseConfig";
 
-//importing pages 
-import AuthScreen from './src/screens/AuthScreen';
-//import CalendarScreen from './src/screens/CalendarScreen';
-import HomeScreen from './src/screens/HomeScreen';
-import TaskScreen from './src/screens/TaskScreen';
-//import WeatherScreen from './src/screens/WeatherScreen';
-import NotesScreen from './src/screens/NotesScreen';
+// Screens
+import AuthScreen from "./src/screens/AuthScreen";
+import HomeScreen from "./src/screens/HomeScreen";
+import TaskScreen from "./src/screens/TaskScreen";
+import NotesScreen from "./src/screens/NotesScreen";
+import WeatherScreen from "./src/screens/WeatherScreen";
+import CalendarScreen from "./src/screens/CalendarScreen";
 
-// 1.
-// --- IMPORT CORRECTION ---
-// You were importing the file as 'CreateNote' but using it as 'CreateNoteScreen'
-// Make sure the file name is 'CreateNoteScreen.js'
-//
-import CreateNoteScreen from './src/screens/CreateNote'; 
+// Custom tab bar
+import NavBar from "./src/components/NavBar";
 
-//using stack Navigator 
+const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-//The export default function App stuff
-export default function App() {
+// main tabs whgen logged in
+function ProtectedTabs() {
   return (
-    // navigationContainer
+    <Tab.Navigator
+      screenOptions={{ headerShown: false }}
+      tabBar={({ state, navigation }) => (
+        <NavBar page={state.routeNames[state.index]} navigation={navigation} />
+      )}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Tasks" component={TaskScreen} />
+      <Tab.Screen name="Notes" component={NotesScreen} />
+      <Tab.Screen name="Weather" component={WeatherScreen} />
+      <Tab.Screen name="Calendar" component={CalendarScreen} />
+    </Tab.Navigator>
+  );
+}
+
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [initializing, setInitializing] = useState(true);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(firebase_auth, (u) => {
+      setUser(u);
+      if (initializing) setInitializing(false);
+    });
+    return unsub;
+  }, [initializing]);
+
+  if (initializing) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  // Navigation Stack 
+  return (
     <NavigationContainer>
-      {/* define the screen that is clickable */}
-
-      {/* The first screen listed is the default starting screen */}
-
-      {/* 2.
-        --- ORDER CORRECTION ---
-        'Login' must be the first screen in the list.
-        The app will now start on 'Login', and 'CreateNote' will have a screen to "go back" to.
-      */}
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Login" // navigater name
-          component={AuthScreen}
-          options={{ headerShown: false }} // No header on the login screen
-        />
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          // no default we got special custom
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Notes" // navigater name
-          component={NotesScreen}
-          // testing
-          options={{ headerShown: false }} 
-        />
-        <Stack.Screen
-          name="Tasks" // navigater name
-          component={TaskScreen}
-          // testing
-          options={{ headerShown: false }} 
-        />
-
-        {/* This screen is now correctly placed. It's on the "map" but not the start. */}
-        <Stack.Screen 
-          name="CreateNote" 
-          component={CreateNoteScreen}
-          // This will add a header with a back arrow
-          options={{ 
-            title: 'Note', // Set the title of the header
-            headerShown: true 
-          }}
-        />
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {user ? (
+          <Stack.Screen name="Main" component={ProtectedTabs} />
+        ) : (
+          <Stack.Screen name="Auth" component={AuthScreen} options={{ title: "Authentication" }} />
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,151 +1,145 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
+import React from "react";
+import {View,Text,ImageBackground,StyleSheet,TouchableOpacity,Image} from "react-native";
+import { useEffect, useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useFonts } from "expo-font";
 
-export default function HomeScreen({ navigation }) { 
+// Components
+import NavBar from "../components/NavBar";
+import CustomizeRoomPopUp, {popUp,PET_LIST,loadSavedPet} from "../components/customizeRoom";
+
+const COLORS = {
+  bg: "#EFE6DE",
+  text: "#844634",
+  topBar: "#E0916C",
+  navBg: "#E0916C",
+  muted: "#FFFFFFFF",
+};
+// Set Default pet to Bartholemeu
+const DEFAULT_PET = "Bartholemeu";
+
+export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
+
+  const [fontsLoaded] = useFonts({
+    Fredoka: require("../assets/fonts/Fredoka.ttf"),
+  });
+
+  /* Load saved pet 
+    if no pet is saved, default to DEFAULT_PET
+  */
+  const [pet, setPet] = useState(DEFAULT_PET);
+  useEffect(() => {
+    (async () => {
+      const saved = await loadSavedPet(); 
+      if (saved) {
+        setPet(saved);
+      } else {
+        setPet(DEFAULT_PET);
+      }
+    })();
+  }, []);
+
+  if (!fontsLoaded) return null;
   return (
-    <ImageBackground
-      source={require('../../assets/components/Home_Page.png')}
-      style={styles.background}
-      resizeMode="cover"
-    >
-      {/* Top bar */}
-      <View style={styles.header}>
-        <View style={styles.spacer} /> 
-        {/* 2.
-          --- MOVED onPress TO THE TouchableOpacity --- */}
-        <TouchableOpacity 
-          style={styles.iconWrapper}
-          onPress={() => navigation.navigate('Home')} // Changed to 'Home'
-        >
-          <Image
-            source={require('../../assets/icons/cat_icon.png')}
-            style={styles.homeIcon}
-            // Removed onPress from here
-          />
-        </TouchableOpacity>
-      </View>
+    <View style={styles.container}>
+      <ImageBackground
+        source={require("../assets/images/home-background.png")}
+        style={styles.background}
+        resizeMode="cover"
+      >
+        <View style={[styles.topBar, { paddingTop: insets.top }]} />
 
-      {/* Greeting */}
-      <Text style={styles.greeting}>Good morning, User :)</Text>
-
-      {/* Bottom nav */}
-      <View style={styles.navBar}>
-        {/* --- MOVED/ADDED onPress TO THE TouchableOpacity --- */}
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Calendar')} // Assuming 'Calendar'
+        {/* Pet button opens popup
+        - Note: button is temporarily inside the topBar visually but will not be in the final design
+        */}
+        <TouchableOpacity
+          style={[styles.petButton]}
+          activeOpacity={0.8}
+          onPress={() => popUp({ onSelect: setPet })}
         >
-          <Image
-            source={require('../../assets/icons/calendar_icon.png')}
-            style={styles.navIcon}
-          />
-          <Text style={styles.navText}>Calendar</Text>
+          <View style={styles.petButtonCircle}>
+            <Image
+              source={require("../assets/icons/pet-icon.png")}
+              style={styles.petIcon}
+            />
+          </View>
         </TouchableOpacity>
 
-        {/* --- MOVED/ADDED onPress TO THE TouchableOpacity --- */}
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Tasks')} // Changed from 'Task' to 'Tasks'
-        >
-          <Image
-            source={require('../../assets/icons/checklist_icon.png')}
-            style={styles.navIcon}
-            // Removed onPress from here
-          />
-          <Text style={styles.navText}>To-dos</Text>
-        </TouchableOpacity>
+        {/* "Phrase is temporary" */}
+        <Text style={styles.greeting}>Good morning, User</Text>
 
-        {/* --- MOVED/ADDED onPress TO THE TouchableOpacity --- */}
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Photos')} // Assuming 'Photos'
-        >
-          <Image
-            source={require('../../assets/icons/photo_icon.png')}
-            style={styles.navIcon}
-          />
-          <Text style={styles.navText}>Memories</Text>
-        </TouchableOpacity>
+        {/* Show selected pet in the room */}
+        {pet && PET_LIST[pet] && (
+          <Image source={PET_LIST[pet]} style={styles.petSprite} />
+        )}
 
-        {/* --- MOVED/ADDED onPress TO THE TouchableOpacity --- */}
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Notes')}
-        >
-          <Image
-            source={require('../../assets/icons/cards_icon.png')}
-            style={styles.navIcon}
-          />
-          <Text style={styles.navText}>Notes</Text>
-        </TouchableOpacity>
-      </View>
-    </ImageBackground>
+        <NavBar page="home" />
+      </ImageBackground>
+
+      {/* PopUp*/}
+      <CustomizeRoomPopUp />
+    </View>
   );
 }
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+  },
+
   background: {
     flex: 1,
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
+    alignItems: "center",
   },
-  header: {
-    width: '100%',
-    paddingHorizontal: 24,
-    paddingTop: 40,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+
+  topBar: {
+    width: "100%",
+    height: 100,
+    backgroundColor: COLORS.topBar,
+
   },
-  spacer: {
-    flex: 1,
+
+  petButton: {
+    position: "absolute",
+    right: 15,
+    zIndex: 10,
+    marginTop: 45,
   },
-  iconWrapper: {
-    width: 60,
-    height: 60,
-    backgroundColor: '#E0916C',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+
+  petButtonCircle: {
+    width: 45,
+    height: 45,
+    borderRadius: 25,
+    backgroundColor: COLORS.text,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  homeIcon: {
-    width: 40,
-    height: 40,
-    resizeMode: 'contain',
+
+  petIcon: {
+    width: 25,
+    height: 25,
+    resizeMode: "contain",
+    tintColor: "white",
   },
+
   greeting: {
-    marginTop: 50,
-    fontSize: 20,
-    color: '#5B3C2E',
-    fontWeight: '500',
+    fontFamily: "Fredoka",
+    fontSize: 28,
+    fontWeight: "800",
+    color: COLORS.text,
+    textAlign: "center",
+    marginTop: 30,
+    marginBottom: "auto",
   },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#E0916C',
-    width: '100%',
-    paddingVertical: 14,
-    position: 'absolute',
-    bottom: 0,
-    height: 90,
-  },
-  navItem: {
-    alignItems: 'center',
-  },
-  navIcon: {
-    width: 24,
-    height: 24,
-    marginBottom: 4,
-  },
-  navText: {
-    fontSize: 12,
-    color: '#fff',
-    fontWeight: '500',
+
+  petSprite: {
+    position: "absolute",
+    bottom: 200,
+    alignSelf: "center",
+    width: 70,
+    height: 70,
+    resizeMode: "contain",
+    zIndex: 5,
   },
 });
