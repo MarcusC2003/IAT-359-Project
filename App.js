@@ -16,6 +16,7 @@ import NotesScreen from "./src/screens/NotesScreen";
 import CreateNoteScreen from "./src/screens/CreateNote";
 import WeatherScreen from "./src/screens/WeatherScreen";
 import CalendarScreen from "./src/screens/CalendarScreen";
+import CreateTaskScreen from "./src/screens/CreateTaskScreen";
 
 // Custom tab bar
 import NavBar from "./src/components/NavBar";
@@ -37,7 +38,7 @@ function ProtectedTabs() {
       <Tab.Screen name="Notes" component={NotesStack} />
       <Tab.Screen name="CreateNote" component={CreateNoteScreen} />
       <Tab.Screen name="Weather" component={WeatherScreen} />
-      <Tab.Screen name="Calendar" component={CalendarScreen} />
+      <Tab.Screen name="Calendar" component={CalendarStack} />
     </Tab.Navigator>
   );
 }
@@ -49,6 +50,25 @@ function NotesStack() {
     </Stack.Navigator>
   );
 }
+function CalendarStack() {
+  return(
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen
+  name="Calendar"
+  component={CalendarScreen}
+  options={{ headerShown: false }}
+/>
+<Stack.Screen
+  name="CreateTask"
+  component={CreateTaskScreen}
+  options={{ headerShown: false }}
+/>
+
+    </Stack.Navigator>
+  );
+}
+
+
 
 export default function App() {
   const [user, setUser] = useState(null);

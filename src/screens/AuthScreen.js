@@ -62,7 +62,7 @@ export default function SignInScreen() {
     }
   };
 
-  return (
+   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -70,11 +70,16 @@ export default function SignInScreen() {
       >
         <View style={styles.card}>
           <View style={styles.logoContainer}>
-            <Image source={require("../assets/icons/cat-icon.png")} style={styles.logoIcon} />
+            <Image
+              source={require("../assets/icons/cat-icon.png")}
+              style={styles.logoIcon}
+            />
           </View>
 
           <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to your cozy productivity space</Text>
+          <Text style={styles.subtitle}>
+            Sign in to your cozy productivity space
+          </Text>
 
           <Text style={styles.label}>Email</Text>
           <TextInput
@@ -109,19 +114,14 @@ export default function SignInScreen() {
             )}
           </TouchableOpacity>
 
-          <View style={styles.dividerContainer}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>OR</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          {/* You can remove this whole block if you truly don't want sign up yet */}
-          <TouchableOpacity style={styles.googleButton} onPress={handleSignUp} disabled={loading}>
-            <Text style={styles.googleButtonText}>Create an account</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp} disabled={loading}>
-            <Text style={styles.signUpButtonText}>Don't have an account? Sign up</Text>
+          <TouchableOpacity
+            style={styles.signUpButton}
+            onPress={handleSignUp}
+            disabled={loading}
+          >
+            <Text style={styles.signUpButtonText}>
+              Don't have an account? Sign up
+            </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -129,69 +129,48 @@ export default function SignInScreen() {
   );
 }
 
-// --- Stylesheet ---
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
   },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-
-  },
-  headerIconContainer: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 10 : 20,
-    right: 20,
-    width: 55,
-    height: 55,
-    borderRadius: 18,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  // Style for the header icon
-  headerIcon: {
-    width: 34,
-    height: 34,
-    resizeMode: 'contain',
-  },
   card: {
-    flex:1,
-    width: '95%',
+    width: "95%",
+    height: 600,
     backgroundColor: colors.card,
     borderRadius: 25,
-    padding: 25,
-    alignItems: 'center',
-    marginTop: 30, 
-    shadowColor: '#000',
+    padding: 30,
+    alignItems: "center",
+    marginTop: 30,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 15,
-    justifyContent: 'center',
-    alignContent: 'center',
+    justifyContent: "center",
+    alignContent: "center",
   },
-
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   logoContainer: {
     width: 70,
     height: 70,
     borderRadius: 18,
     backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 20,
   },
-  // Style for the main logo icon
   logoIcon: {
     width: 40,
     height: 40,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   title: {
     fontSize: 26,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.textPrimary,
     marginBottom: 8,
   },
@@ -199,17 +178,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.textSecondary,
     marginBottom: 30,
-    textAlign: 'center',
+    textAlign: "center",
   },
   label: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.textPrimary,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     marginBottom: 8,
   },
   input: {
-    width: '100%',
+    width: "100%",
     height: 50,
     backgroundColor: colors.inputBackground,
     borderRadius: 12,
@@ -219,60 +198,22 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   signInButton: {
-    width: '100%',
+    width: "100%",
     height: 50,
     backgroundColor: colors.primary,
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 25,
   },
   signInButtonText: {
     color: colors.white,
     fontSize: 16,
-    fontWeight: 'bold',
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 25,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.borderColor,
-  },
-  dividerText: {
-    marginHorizontal: 10,
-    fontSize: 12,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  googleButton: {
-    width: '100%',
-    height: 50,
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.borderColor,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  googleButtonText: {
-    color: colors.black,
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 10,
-  },
-  signUpButton: {
-    // This is a TouchableOpacity, so it's a button
+    fontWeight: "bold",
   },
   signUpButtonText: {
     color: colors.primary,
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
