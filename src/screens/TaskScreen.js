@@ -15,7 +15,7 @@ import { useIsFocused, useFocusEffect } from '@react-navigation/native';
 
 // --- Color Palette (Unchanged) ---
 const colors = {
-    background: '#f7f1eb',
+    background: '#EFE6DE',
     primary: '#E0916C', 
     textPrimary: '#5c3a2c',
     textSecondary: '#8a8a8a',

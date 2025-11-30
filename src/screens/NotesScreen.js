@@ -37,7 +37,7 @@ const storage = getStorage(app);
 
 // Assumed colors object (copied from your previous context)
 const colors = {
-    background: '#f7f1eb',
+    background: '#EFE6DE',
     primary: '#e09a80', // Using the color from your previous context's FAB
     textPrimary: '#2c5c32ff',
     textSecondary: '#8a8a8aff',
