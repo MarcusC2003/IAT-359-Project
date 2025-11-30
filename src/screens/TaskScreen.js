@@ -133,9 +133,9 @@ export default function TaskScreen({ navigation }) {
     // --- GROUPING LOGIC (Priority-Based) ---
     const getGroupedTasks = () => {
         const sections = [
-            { title: "⭐ Important & Urgent", category: "important", data: [] },
-            { title: "🔔 Other Tasks", category: "not_important", data: [] },
-            { title: "💡 Just Reminder:", category: "reminder", data: [] },
+            { title: "Important & Urgent", category: "important", data: [] },
+            { title: "Other Tasks", category: "not_important", data: [] },
+            { title: "Just Reminder:", category: "reminder", data: [] },
         ];
 
         // Sort by completion status first (incomplete first), then distribute
@@ -186,11 +186,7 @@ export default function TaskScreen({ navigation }) {
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
                 <View style={styles.mainHeader}>
-                    <Text style={styles.appTitle}>Palananner</Text>
-                    <Text style={styles.appDescription}>
-                        The adhd friendly app that has your calendar, to dos, weather, notes
-                        all in your custom room
-                    </Text>
+                    <Text style={styles.appTitle}>Todo</Text>
                 </View>
 
                 <FlatList
@@ -228,7 +224,6 @@ const styles = StyleSheet.create({
     mainHeader: {
         paddingHorizontal: 25,
         paddingTop: Platform.OS === 'android' ? 20 : 20,
-        paddingBottom: 20,
     },
     appTitle: {
         fontSize: 40,
@@ -249,7 +244,7 @@ const styles = StyleSheet.create({
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 30,
+        marginTop: 15,
         marginBottom: 15,
         gap: 10,
     },
@@ -327,6 +322,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 5,
         shadowOffset: { width: 0, height: 2 },
+        marginBottom: 55,
     },
     fabIcon: {
         fontSize: 30,
