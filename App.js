@@ -7,8 +7,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import { firebase_auth } from "./src/utils/firebaseConfig";
 import * as Haptics from 'expo-haptics';
 
-
-// Screens
 import AuthScreen from "./src/screens/AuthScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import TaskScreen from "./src/screens/TaskScreen";
@@ -16,14 +14,30 @@ import NotesScreen from "./src/screens/NotesScreen";
 import CreateNoteScreen from "./src/screens/CreateNote";
 import WeatherScreen from "./src/screens/WeatherScreen";
 import CalendarScreen from "./src/screens/CalendarScreen";
+import EditTaskScreen from "./src/screens/EditTaskScreen";
 
-// Custom tab bar
 import NavBar from "./src/components/NavBar";
 
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+const RootStack = createNativeStackNavigator();
+const SubStack = createNativeStackNavigator();
 
-// main tabs whgen logged in
+function NotesStack() {
+  return (
+    <SubStack.Navigator screenOptions={{ headerShown: false }}>
+      <SubStack.Screen name="NotesList" component={NotesScreen} />
+    </SubStack.Navigator>
+  );
+}
+
+function TasksStack() {
+  return (
+    <SubStack.Navigator screenOptions={{ headerShown: false }}>
+      <SubStack.Screen name="TasksList" component={TaskScreen} />
+    </SubStack.Navigator>
+  );
+}
+
 function ProtectedTabs() {
   return (
     <Tab.Navigator
@@ -33,20 +47,11 @@ function ProtectedTabs() {
       )}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Tasks" component={TaskScreen} />
+      <Tab.Screen name="Tasks" component={TasksStack} />
       <Tab.Screen name="Notes" component={NotesStack} />
-      <Tab.Screen name="CreateNote" component={CreateNoteScreen} />
       <Tab.Screen name="Weather" component={WeatherScreen} />
       <Tab.Screen name="Calendar" component={CalendarScreen} />
     </Tab.Navigator>
-  );
-}
-function NotesStack() {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Notes" component={NotesScreen} />
-      <Stack.Screen name="CreateNote" component={CreateNoteScreen} />
-    </Stack.Navigator>
   );
 }
 
@@ -62,7 +67,6 @@ export default function App() {
     return unsub;
   }, [initializing]);
 
-  // vibrate on login
   useEffect(() => {
     if (!initializing && user) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -77,16 +81,32 @@ export default function App() {
     );
   }
 
-  // Navigation Stack 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <RootStack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
-          <Stack.Screen name="Main" component={ProtectedTabs} />
+          <>
+            <RootStack.Screen name="Main" component={ProtectedTabs} />
+
+            <RootStack.Screen 
+                name="EditTask" 
+                component={EditTaskScreen} 
+                options={{ presentation: 'modal' }} 
+            />
+            <RootStack.Screen 
+                name="CreateNote" 
+                component={CreateNoteScreen} 
+                options={{ presentation: 'modal' }} 
+            />
+          </>
         ) : (
-          <Stack.Screen name="Auth" component={AuthScreen} options={{ title: "Authentication" }} />
+          <RootStack.Screen 
+            name="Auth" 
+            component={AuthScreen} 
+            options={{ title: "Authentication" }} 
+          />
         )}
-      </Stack.Navigator>
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 }
