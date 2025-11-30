@@ -8,11 +8,10 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { createEventForCurrentUser } from "../modules/calendarEvents";
+import DatePicker from "../components/DatePicker";
 
 const colors = {
   background: "#f7f1eb",
@@ -22,20 +21,11 @@ const colors = {
   inputBorder: "#8C4B33",
   muted: "#b39b86",
   dropdownBg: "#F7E4D5",
+  background: "#f7f1eb",
+
 };
 
 const CATEGORY_OPTIONS = ["School", "Work", "Personal", "Other"];
-
-const formatDateTime = (date) => {
-  if (!date) return "";
-  return date.toLocaleString("en-CA", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-};
 
 export default function CreateTaskScreen({ navigation }) {
   const [title, setTitle] = useState("");
@@ -44,28 +34,34 @@ export default function CreateTaskScreen({ navigation }) {
 
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(null);
+  const [allDay, setAllDay] = useState(false);
 
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
   const [showCategoryList, setShowCategoryList] = useState(false);
 
   const handleCreate = async () => {
     if (!title || !startDate) {
-      Alert.alert(
-        "Missing info",
-        "Please enter at least a title and start date."
-      );
+      Alert.alert("Missing info", "Please enter at least a title and start date.");
       return;
+    }
+
+    const start = new Date(startDate);
+    let end = endDate ? new Date(endDate) : null;
+
+    if (allDay) {
+      start.setHours(0, 0, 0, 0);
+      if (end) {
+        end.setHours(23, 59, 0, 0);
+      }
     }
 
     try {
       await createEventForCurrentUser({
         title,
-        startDate,
-        endDate,
+        startDate: start,
+        endDate: end,
         note,
-        // optional extra info
         category: category || null,
+        allDay,
       });
 
       navigation.goBack();
@@ -75,20 +71,7 @@ export default function CreateTaskScreen({ navigation }) {
     }
   };
 
-  const onStartChange = (selectedDate) => {
-    // Android: dismiss picker after selection
-    if (Platform.OS === "android") setShowStartPicker(false);
-    if (selectedDate) setStartDate(selectedDate);
-  };
-
-  const onEndChange = (selectedDate) => {
-    if (Platform.OS === "android") setShowEndPicker(false);
-    if (selectedDate) setEndDate(selectedDate);
-  };
-
-  const toggleCategory = () => {
-    setShowCategoryList((prev) => !prev);
-  };
+  const toggleCategory = () => setShowCategoryList((prev) => !prev);
 
   const pickCategory = (value) => {
     setCategory(value);
@@ -110,8 +93,6 @@ export default function CreateTaskScreen({ navigation }) {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Enter Title</Text>
-
           <ScrollView contentContainerStyle={styles.scrollContent}>
             {/* Title */}
             <View style={styles.fieldBlock}>
@@ -120,13 +101,13 @@ export default function CreateTaskScreen({ navigation }) {
                 style={styles.input}
                 value={title}
                 onChangeText={setTitle}
-                placeholder="Have family dinner"
+                placeholder="Enter Title"
                 placeholderTextColor={colors.muted}
               />
             </View>
 
             {/* Category dropdown */}
-            <View style={styles.fieldBlock}>
+            <View style={[styles.fieldBlock, styles.dropdownWrapper]}>
               <Text style={styles.fieldLabel}>Category</Text>
               <TouchableOpacity
                 style={styles.dropdown}
@@ -161,61 +142,36 @@ export default function CreateTaskScreen({ navigation }) {
               )}
             </View>
 
-            {/* Start date time */}
-            <View style={styles.fieldBlock}>
-              <Text style={styles.fieldLabel}>Start Date &amp; Time</Text>
+            {/* All Day toggle */}
+            <View style={[styles.fieldBlock, styles.allDayRow]}>
+              <Text style={styles.fieldLabel}>All Day</Text>
               <TouchableOpacity
-                style={styles.inputLike}
-                onPress={() => setShowStartPicker(true)}
+                style={[styles.allDayToggle, allDay && styles.allDayToggleOn]}
+                onPress={() => setAllDay((prev) => !prev)}
               >
-                <Text
-                  style={[
-                    styles.inputLikeText,
-                    !startDate && { color: colors.muted },
-                  ]}
-                >
-                  {formatDateTime(startDate) || "Select start date & time"}
+                <Text style={styles.allDayToggleText}>
+                  {allDay ? "Yes" : "No"}
                 </Text>
               </TouchableOpacity>
-
-              {showStartPicker && (
-                <DateTimePicker
-                  value={startDate || new Date()}
-                  mode="datetime"
-                  display={Platform.OS === "ios" ? "inline" : "default"}
-                  onChange={onStartChange}
-                />
-              )}
             </View>
 
-            {/* End date time (optional) */}
-            <View style={styles.fieldBlock}>
-              <Text style={styles.fieldLabel}>End Date &amp; Time (Optional)</Text>
-              <TouchableOpacity
-                style={styles.inputLike}
-                onPress={() => setShowEndPicker(true)}
-              >
-                <Text
-                  style={[
-                    styles.inputLikeText,
-                    !endDate && { color: colors.muted },
-                  ]}
-                >
-                  {endDate
-                    ? formatDateTime(endDate)
-                    : "Select end date & time"}
-                </Text>
-              </TouchableOpacity>
+            {/* Start Date/Time */}
+            <DatePicker
+              label="Start"
+              value={startDate}
+              onChange={setStartDate}
+              allowTime={!allDay}
+            />
 
-              {showEndPicker && (
-                <DateTimePicker
-                  value={endDate || startDate || new Date()}
-                  mode="datetime"
-                  display={Platform.OS === "ios" ? "inline" : "default"}
-                  onChange={onEndChange}
-                />
-              )}
-            </View>
+            {/* End Date/Time (optional) */}
+            <DatePicker
+              label="End (Optional)"
+              value={endDate}
+              onChange={setEndDate}
+              allowTime={!allDay}
+              minDate={startDate}
+              optional
+            />
 
             {/* Note */}
             <View style={styles.fieldBlock}>
@@ -247,6 +203,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     paddingHorizontal: 20,
     paddingBottom: 24,
+    marginBottom: 70,
   },
   headerRow: {
     flexDirection: "row",
@@ -264,7 +221,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: "Fredoka",
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: "900",
     color: colors.headerText,
   },
@@ -274,12 +231,6 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 18,
   },
-  sectionTitle: {
-    fontFamily: "Fredoka",
-    fontSize: 18,
-    color: colors.headerText,
-    marginBottom: 12,
-  },
   scrollContent: {
     paddingBottom: 24,
   },
@@ -288,7 +239,8 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontFamily: "Fredoka",
-    fontSize: 14,
+    fontSize: 18,
+    fontWeight: "700",
     color: colors.headerText,
     marginBottom: 4,
   },
@@ -306,20 +258,6 @@ const styles = StyleSheet.create({
     height: 100,
     textAlignVertical: "top",
   },
-  // fake input for date/time
-  inputLike: {
-    borderWidth: 2,
-    borderColor: colors.inputBorder,
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    justifyContent: "center",
-  },
-  inputLikeText: {
-    fontFamily: "Fredoka",
-    fontSize: 14,
-    color: colors.headerText,
-  },
   createButton: {
     marginTop: 12,
     backgroundColor: colors.accent,
@@ -335,6 +273,10 @@ const styles = StyleSheet.create({
   },
 
   // dropdown styles
+  dropdownWrapper: {
+    position: "relative",
+    zIndex: 20,
+  },
   dropdown: {
     flexDirection: "row",
     alignItems: "center",
@@ -355,10 +297,16 @@ const styles = StyleSheet.create({
     color: colors.headerText,
   },
   dropdownList: {
-    marginTop: 6,
+    marginTop: 4,
     borderRadius: 16,
     overflow: "hidden",
     backgroundColor: colors.dropdownBg,
+    position: "absolute",
+    top: 52,
+    left: 0,
+    right: 0,
+    zIndex: 30,
+    elevation: 4,
   },
   dropdownItem: {
     paddingVertical: 8,
@@ -368,5 +316,28 @@ const styles = StyleSheet.create({
     fontFamily: "Fredoka",
     fontSize: 14,
     color: colors.headerText,
+  },
+
+  // All Day toggle
+  allDayRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  allDayToggle: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 2,
+    borderColor: colors.inputBorder,
+  },
+  allDayToggleOn: {
+    backgroundColor: colors.accent,
+  },
+  allDayToggleText: {
+    fontFamily: "Fredoka",
+    fontSize: 14,
+    color: "#fff",
+    fontWeight: "700",
   },
 });
