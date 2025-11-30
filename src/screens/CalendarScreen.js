@@ -10,14 +10,13 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 
+// module imports
 import {
-  subscribeToEventsForCurrentUser,
-  deleteEventForCurrentUser,
-} from "../modules/calendarEvents";
+  subscribeToEventsForCurrentUser,deleteEventForCurrentUser} from "../modules/calendarEvents";
 import TaskPopUp from "../components/TaskPopUp";
 
 const COLORS = {
-  pageBg: "#E6D7C9",
+  pageBg: "#EFE6DE",
   cardBg: "#FFFFFF",
   headerText: "#5c3a2c",
   accent: "#E0916C",
@@ -37,6 +36,7 @@ const formatMonth = (date) =>
 const getDayNumber = (d) => d.getDate();
 const getDayLabel = (d) =>
   d.toLocaleDateString("en-CA", { weekday: "short" }).toLowerCase();
+
 
 const groupEventsByDay = (events) => {
   const map = {};
@@ -58,7 +58,6 @@ export default function CalendarScreen({ navigation }) {
   const [events, setEvents] = useState([]);
   const [viewMode, setViewMode] = useState("all"); // "all" | "week"
   const [selectedDate, setSelectedDate] = useState(new Date());
-
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   const handlePressEvent = (event) => {
@@ -283,13 +282,24 @@ const AllDayRow = ({ date, events, onEventPress }) => {
 };
 
 const EventPill = ({ event, index, onPress }) => {
-  const colors = [
+  const baseColors = [
     COLORS.eventGreen,
     COLORS.eventPink,
     COLORS.eventBlue,
     COLORS.eventBeige,
   ];
-  const bg = colors[index % colors.length];
+
+  // map categories to specific colors
+  const categoryColorMap = {
+    School: COLORS.eventBlue,
+    Work: COLORS.eventGreen,
+    Personal: COLORS.eventPink,
+    Other: COLORS.eventBeige,
+  };
+
+  const bg =
+    (event.category && categoryColorMap[event.category]) ||
+    baseColors[index % baseColors.length];
 
   return (
     <TouchableOpacity

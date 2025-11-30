@@ -158,13 +158,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 8,
+    marginBottom: 12,
   },
   title: {
     flex: 1,
     fontFamily: "Fredoka",
-    fontSize: 22,
-    fontWeight: "800",
+    fontSize: 30,
+    fontWeight: "600",
     color: COLORS.headerText,
     marginRight: 8,
   },
@@ -186,7 +186,8 @@ const styles = StyleSheet.create({
   },
   pillText: {
     fontFamily: "Fredoka",
-    fontSize: 12,
+    fontSize: 14,
+    fontWeight:"500",
     color: COLORS.headerText,
   },
   content: {
@@ -200,13 +201,13 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: "Fredoka",
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: "700",
     color: COLORS.subtle,
   },
   value: {
     fontFamily: "Fredoka",
-    fontSize: 14,
+    fontSize: 18,
     color: COLORS.headerText,
     maxWidth: "65%",
     textAlign: "right",
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
   noteText: {
     marginTop: 4,
     fontFamily: "Fredoka",
-    fontSize: 14,
+    fontSize: 17,
     color: COLORS.headerText,
   },
   footerRow: {
