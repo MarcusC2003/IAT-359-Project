@@ -1,4 +1,4 @@
-// src/modules/calendarEvents.js
+// src/modules/calendarEvents.js (or wherever this file is)
 import { db, firebase_auth } from "../utils/firebaseConfig";
 import {
   collection,
@@ -7,6 +7,8 @@ import {
   query,
   where,
   orderBy,
+  doc,  
+  deleteDoc,
 } from "firebase/firestore";
 
 const EVENTS_COLLECTION = "calendarEvents";
@@ -14,13 +16,15 @@ const EVENTS_COLLECTION = "calendarEvents";
 /**
  * Create a basic calendar event for the current user.
  * Required: title, startDate
- * Optional: endDate, note
+ * Optional: endDate, note, category, allDay
  */
 export const createEventForCurrentUser = async ({
   title,
   startDate,
   endDate,
   note,
+  category,
+  allDay,
 }) => {
   if (!title || !startDate) {
     throw new Error("title and startDate are required.");
@@ -47,8 +51,22 @@ export const createEventForCurrentUser = async ({
     startDate: start,
     ...(end && { endDate: end }),
     note: note || "",
+    category: category || null,
+    allDay: !!allDay,
     dateCreated,
   });
+};
+
+// Delete an event by document ID
+export const deleteEventForCurrentUser = async (eventId) => {
+  const user = firebase_auth.currentUser;
+  if (!user) {
+    throw new Error("No authenticated user found.");
+  }
+
+  // events are stored in top-level "calendarEvents" collection
+  const ref = doc(db, EVENTS_COLLECTION, eventId);
+  await deleteDoc(ref);
 };
 
 /**
@@ -66,7 +84,7 @@ export const subscribeToEventsForCurrentUser = (onUpdate) => {
   const q = query(
     collection(db, EVENTS_COLLECTION),
     where("userId", "==", user.uid),
-    orderBy("startDate", "asc") // <- index: userId + startDate (ascending)
+    orderBy("startDate", "asc") //index: userId + startDate (ascending)
   );
 
   const unsub = onSnapshot(

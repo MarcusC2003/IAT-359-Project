@@ -10,10 +10,14 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 
-import { subscribeToEventsForCurrentUser } from "../modules/calendarEvents";
+import {
+  subscribeToEventsForCurrentUser,
+  deleteEventForCurrentUser,
+} from "../modules/calendarEvents";
+import TaskPopUp from "../components/TaskPopUp";
 
 const COLORS = {
-  pageBg: "#E6D7C9", // beige background
+  pageBg: "#E6D7C9",
   cardBg: "#FFFFFF",
   headerText: "#5c3a2c",
   accent: "#E0916C",
@@ -54,6 +58,22 @@ export default function CalendarScreen({ navigation }) {
   const [events, setEvents] = useState([]);
   const [viewMode, setViewMode] = useState("all"); // "all" | "week"
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const handlePressEvent = (event) => {
+    setSelectedEvent(event);
+  };
+
+  // remove event from firestore
+  const handleRemoveEvent = async (eventToRemove) => {
+    try {
+      await deleteEventForCurrentUser(eventToRemove.id);
+      setSelectedEvent(null);
+    } catch (err) {
+      console.warn("Failed to delete event", err);
+    }
+  };
 
   // subscribe to Firestore
   useEffect(() => {
@@ -115,7 +135,6 @@ export default function CalendarScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* Rounded main card */}
       <View style={styles.card}>
         {/* All / Week toggle */}
         <View style={styles.toggleRow}>
@@ -143,7 +162,7 @@ export default function CalendarScreen({ navigation }) {
           })}
         </View>
 
-        {/* Month label + divider */}
+        {/* Month label and divider */}
         <Text style={styles.monthLabel}>{monthLabel}</Text>
         <View style={styles.divider} />
 
@@ -154,7 +173,11 @@ export default function CalendarScreen({ navigation }) {
             keyExtractor={(item) => item.key}
             contentContainerStyle={styles.listContent}
             renderItem={({ item }) => (
-              <AllDayRow date={item.date} events={item.events} />
+              <AllDayRow
+                date={item.date}
+                events={item.events}
+                onEventPress={handlePressEvent}
+              />
             )}
             ListEmptyComponent={
               <Text style={styles.emptyText}>
@@ -209,20 +232,31 @@ export default function CalendarScreen({ navigation }) {
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.listContent}
                 renderItem={({ item, index }) => (
-                  <EventPill event={item} index={index} />
+                  <EventPill
+                    event={item}
+                    index={index}
+                    onPress={handlePressEvent}
+                  />
                 )}
               />
             )}
           </View>
         )}
       </View>
+
+      <TaskPopUp
+        visible={!!selectedEvent}
+        event={selectedEvent}
+        onClose={() => setSelectedEvent(null)}
+        onRemove={handleRemoveEvent}
+      />
     </View>
   );
 }
 
 // --- subcomponents ---
 
-const AllDayRow = ({ date, events }) => {
+const AllDayRow = ({ date, events, onEventPress }) => {
   return (
     <View style={styles.dayRow}>
       <View style={styles.dayLeft}>
@@ -234,14 +268,21 @@ const AllDayRow = ({ date, events }) => {
         {events.length === 0 ? (
           <Text style={styles.smallMuted}>No tasks</Text>
         ) : (
-          events.map((e, i) => <EventPill key={e.id} event={e} index={i} />)
+          events.map((e, i) => (
+            <EventPill
+              key={e.id}
+              event={e}
+              index={i}
+              onPress={onEventPress}
+            />
+          ))
         )}
       </View>
     </View>
   );
 };
 
-const EventPill = ({ event, index }) => {
+const EventPill = ({ event, index, onPress }) => {
   const colors = [
     COLORS.eventGreen,
     COLORS.eventPink,
@@ -251,14 +292,17 @@ const EventPill = ({ event, index }) => {
   const bg = colors[index % colors.length];
 
   return (
-    <View style={[styles.eventPill, { backgroundColor: bg }]}>
+    <TouchableOpacity
+      style={[styles.eventContainer, { backgroundColor: bg }]}
+      activeOpacity={0.8}
+      onPress={() => onPress && onPress(event)}
+    >
       <Text style={styles.eventText}>{event.title}</Text>
-    </View>
+    </TouchableOpacity>
   );
 };
 
-// --- styles ---
-
+// --- styles --- (unchanged)
 const styles = StyleSheet.create({
   page: {
     flex: 1,
@@ -270,10 +314,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     paddingBottom: 10,
+    marginTop: 10,
+    marginBottom: 10,
   },
   headerTitle: {
     fontFamily: "Fredoka",
-    fontSize: 24,
+    fontSize: 35,
     fontWeight: "900",
     color: COLORS.headerText,
   },
@@ -285,7 +331,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontFamily: "Fredoka",
-    fontSize: 14,
+    fontSize: 20,
     color: "#fff",
     fontWeight: "800",
   },
@@ -299,10 +345,10 @@ const styles = StyleSheet.create({
   },
   toggleRow: {
     flexDirection: "row",
-    alignSelf: "flex-start",
+    alignSelf: "center",
     backgroundColor: COLORS.pillBg,
     borderRadius: 999,
-    padding: 4,
+    padding: 7,
   },
   togglePill: {
     paddingHorizontal: 20,
@@ -314,7 +360,7 @@ const styles = StyleSheet.create({
   },
   toggleText: {
     fontFamily: "Fredoka",
-    fontSize: 14,
+    fontSize: 15,
     color: COLORS.headerText,
   },
   toggleTextActive: {
@@ -323,9 +369,10 @@ const styles = StyleSheet.create({
   },
   monthLabel: {
     fontFamily: "Fredoka",
-    fontSize: 22,
+    fontSize: 28,
+    fontWeight: "600",
     color: COLORS.headerText,
-    marginTop: 16,
+    marginTop: 10,
   },
   divider: {
     height: 2,
@@ -348,18 +395,19 @@ const styles = StyleSheet.create({
   dayNumber: {
     fontFamily: "Fredoka",
     fontSize: 24,
+    fontWeight: "500",
     color: COLORS.headerText,
   },
   dayLabel: {
     fontFamily: "Fredoka",
-    fontSize: 14,
+    fontSize: 15,
     color: COLORS.subtle,
   },
   dayRight: {
     flex: 1,
     gap: 8,
   },
-  eventPill: {
+  eventContainer: {
     borderRadius: 24,
     paddingVertical: 10,
     paddingHorizontal: 16,
@@ -367,9 +415,9 @@ const styles = StyleSheet.create({
   },
   eventText: {
     fontFamily: "Fredoka",
-    fontSize: 14,
+    fontSize: 16,
     color: "#fff",
-    fontWeight: "700",
+    fontWeight: "500",
   },
   smallMuted: {
     fontFamily: "Fredoka",
@@ -388,19 +436,23 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 10,
     marginBottom: 10,
+    marginHorizontal: 15,
   },
   weekBubble: {
     alignItems: "center",
-    paddingVertical: 4,
+    paddingVertical: 8,
     paddingHorizontal: 6,
     borderRadius: 20,
+    width: 43,
+    height: 57,
   },
   weekBubbleActive: {
     backgroundColor: COLORS.accent,
   },
   weekNumber: {
     fontFamily: "Fredoka",
-    fontSize: 16,
+    fontSize: 19,
+    fontWeight: "500",
     color: COLORS.headerText,
   },
   weekNumberActive: {
@@ -408,7 +460,7 @@ const styles = StyleSheet.create({
   },
   weekLabel: {
     fontFamily: "Fredoka",
-    fontSize: 12,
+    fontSize: 14,
     color: COLORS.subtle,
   },
   weekLabelActive: {
@@ -416,7 +468,8 @@ const styles = StyleSheet.create({
   },
   tasksLabel: {
     fontFamily: "Fredoka",
-    fontSize: 18,
+    fontSize: 20,
+    fontWeight: "600",
     color: COLORS.headerText,
     marginTop: 4,
     marginBottom: 8,

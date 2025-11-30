@@ -126,7 +126,7 @@ export default function DatePicker({
             </Text>
 
             <Calendar
-                style={{ borderRadius: 14 }}
+                style={{ borderRadius: 14, fontWeight: "700" }}
               onDayPress={handleDayPress}
               markedDates={{
                 [toYMD(tempDate)]: {

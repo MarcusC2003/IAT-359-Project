@@ -54,15 +54,15 @@ function CalendarStack() {
   return(
         <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen
-  name="Calendar"
-  component={CalendarScreen}
-  options={{ headerShown: false }}
-/>
-<Stack.Screen
-  name="CreateTask"
-  component={CreateTaskScreen}
-  options={{ headerShown: false }}
-/>
+          name="CalendarPage"
+          component={CalendarScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="CreateTask"
+          component={CreateTaskScreen}
+          options={{ headerShown: false }}
+        />
 
     </Stack.Navigator>
   );
