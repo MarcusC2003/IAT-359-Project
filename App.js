@@ -5,7 +5,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { onAuthStateChanged } from "firebase/auth";
 import { firebase_auth } from "./src/utils/firebaseConfig";
-import * as Haptics from 'expo-haptics';
+import * as Haptics from "expo-haptics";
 
 import AuthScreen from "./src/screens/AuthScreen";
 import HomeScreen from "./src/screens/HomeScreen";
@@ -14,29 +14,58 @@ import NotesScreen from "./src/screens/NotesScreen";
 import CreateNoteScreen from "./src/screens/CreateNote";
 import WeatherScreen from "./src/screens/WeatherScreen";
 import CalendarScreen from "./src/screens/CalendarScreen";
+import CreateTaskScreen from "./src/screens/CreateTaskScreen";
 import EditTaskScreen from "./src/screens/EditTaskScreen";
 
 import NavBar from "./src/components/NavBar";
 
+// --- Navigators ---
 const Tab = createBottomTabNavigator();
 const RootStack = createNativeStackNavigator();
-const SubStack = createNativeStackNavigator();
+
+// separate stacks for each section that needs its own stack
+const NotesStackNav = createNativeStackNavigator();
+const TasksStackNav = createNativeStackNavigator();
+const CalendarStackNav = createNativeStackNavigator();
+
+// --- Stacks per tab ---
 
 function NotesStack() {
   return (
-    <SubStack.Navigator screenOptions={{ headerShown: false }}>
-      <SubStack.Screen name="NotesList" component={NotesScreen} />
-    </SubStack.Navigator>
+    <NotesStackNav.Navigator screenOptions={{ headerShown: false }}>
+      <NotesStackNav.Screen name="NotesList" component={NotesScreen} />
+      {/* if you ever want CreateNote inside the Notes tab instead of global:
+        <NotesStackNav.Screen name="CreateNote" component={CreateNoteScreen} />
+      */}
+    </NotesStackNav.Navigator>
   );
 }
 
 function TasksStack() {
   return (
-    <SubStack.Navigator screenOptions={{ headerShown: false }}>
-      <SubStack.Screen name="TasksList" component={TaskScreen} />
-    </SubStack.Navigator>
+    <TasksStackNav.Navigator screenOptions={{ headerShown: false }}>
+      <TasksStackNav.Screen name="TasksList" component={TaskScreen} />
+      {/* You could also put EditTask here if it’s task-specific */}
+    </TasksStackNav.Navigator>
   );
 }
+
+function CalendarStack() {
+  return (
+    <CalendarStackNav.Navigator screenOptions={{ headerShown: false }}>
+      <CalendarStackNav.Screen
+        name="CalendarPage"
+        component={CalendarScreen}
+      />
+      <CalendarStackNav.Screen
+        name="CreateTask"
+        component={CreateTaskScreen}
+      />
+    </CalendarStackNav.Navigator>
+  );
+}
+
+// --- Tabs for logged-in users ---
 
 function ProtectedTabs() {
   return (
@@ -50,10 +79,12 @@ function ProtectedTabs() {
       <Tab.Screen name="Tasks" component={TasksStack} />
       <Tab.Screen name="Notes" component={NotesStack} />
       <Tab.Screen name="Weather" component={WeatherScreen} />
-      <Tab.Screen name="Calendar" component={CalendarScreen} />
+      <Tab.Screen name="Calendar" component={CalendarStack} />
     </Tab.Navigator>
   );
 }
+
+// --- Root app ---
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -88,22 +119,23 @@ export default function App() {
           <>
             <RootStack.Screen name="Main" component={ProtectedTabs} />
 
-            <RootStack.Screen 
-                name="EditTask" 
-                component={EditTaskScreen} 
-                options={{ presentation: 'modal' }} 
+            {/* Global modals */}
+            <RootStack.Screen
+              name="EditTask"
+              component={EditTaskScreen}
+              options={{ presentation: "modal" }}
             />
-            <RootStack.Screen 
-                name="CreateNote" 
-                component={CreateNoteScreen} 
-                options={{ presentation: 'modal' }} 
+            <RootStack.Screen
+              name="CreateNote"
+              component={CreateNoteScreen}
+              options={{ presentation: "modal" }}
             />
           </>
         ) : (
-          <RootStack.Screen 
-            name="Auth" 
-            component={AuthScreen} 
-            options={{ title: "Authentication" }} 
+          <RootStack.Screen
+            name="Auth"
+            component={AuthScreen}
+            options={{ title: "Authentication" }}
           />
         )}
       </RootStack.Navigator>
