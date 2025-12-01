@@ -11,8 +11,9 @@ import {
     FlatList,
     ActivityIndicator,
     TouchableOpacity,
-    Alert, // Added for confirmation dialogs
+    Alert,
 } from 'react-native';
+import { useFonts } from "expo-font";
 import { Audio } from 'expo-av';
 import { getAuth } from 'firebase/auth';
 import { 
@@ -23,33 +24,28 @@ import {
     where, 
     serverTimestamp, 
     orderBy,
-    deleteDoc, // Imported for deleting Firestore documents
-    doc, // Imported for referencing documents
+    deleteDoc,
+    doc,
     addDoc, 
 } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'; // deleteObject added
-import { app } from '../utils/firebaseConfig';
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { app } from '../utils/firebaseConfig'; 
 
-// --- Initialize Firebase Services ---
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// Assumed colors object (copied from your previous context)
 const colors = {
-    background: '#f7f1eb',
-    primary: '#e09a80', // Using the color from your previous context's FAB
-    textPrimary: '#2c5c32ff',
-    textSecondary: '#8a8a8aff',
-    white: '#fff',
-    headerText: '#2c5c32ff',
-    card: '#fff',
-    cardTitle: '#2c5c32ff',
-    cardText: '#8a8a8aff',
-    deleteButton: '#E53935', // Red color for delete action
+    background: "#E9E3D5",
+    primary: "#E0916C",
+    headerText: "#5B3C2E",
+    textPrimary: "#5B3C2E",
+    textSecondary: "#8A7A71",
+    card: "#fff",
+    white: "#ffffff",
+    inputBackground: "#FAF8F6",
 };
 
-// --- Reusable Text Note Card Component (Updated to handle Delete button) ---
 const TextNoteCard = ({ title, date, iconName, cardText, onPress, onDeletePress }) => {
     const { MaterialCommunityIcons } = require('@expo/vector-icons');
     return (
@@ -74,11 +70,10 @@ const TextNoteCard = ({ title, date, iconName, cardText, onPress, onDeletePress 
     );
 };
 
-// --- Main Component ---
 export default function NotesScreen({ navigation }) {
+    const [fontsLoaded] = useFonts({ Fredoka: require("../assets/fonts/Fredoka.ttf") });
     const currentUserId = auth.currentUser?.uid;
 
-    // --- States for Voice Notes ---
     const [recording, setRecording] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -86,11 +81,9 @@ export default function NotesScreen({ navigation }) {
     const [isLoadingVoiceNotes, setIsLoadingVoiceNotes] = useState(true);
     const [currentSound, setCurrentSound] = useState(null);
 
-    // --- States for Text Notes ---
     const [textNotes, setTextNotes] = useState([]);
     const [isLoadingTextNotes, setIsLoadingTextNotes] = useState(true);
 
-    // --- UTILITY: Get Timestamp for Display ---
     const getTimestampDisplay = (firestoreTimestamp) => {
         if (!firestoreTimestamp) return 'Saving...';
         const date = firestoreTimestamp.toDate ? firestoreTimestamp.toDate() : new Date(firestoreTimestamp);
@@ -103,7 +96,6 @@ export default function NotesScreen({ navigation }) {
         });
     };
 
-    // --- 1. Fetch Voice Notes (Real-time Listener) ---
     useEffect(() => {
         const user = auth.currentUser;
         if (!user) {
@@ -132,7 +124,6 @@ export default function NotesScreen({ navigation }) {
         return () => unsubscribe();
     }, [currentUserId]);
 
-    // --- 2. Fetch Text Notes (Real-time Listener) ---
     useEffect(() => {
         const user = auth.currentUser;
         if (!user) {
@@ -161,10 +152,6 @@ export default function NotesScreen({ navigation }) {
         return () => unsubscribeText();
     }, [currentUserId]);
 
-    // ----------------------------------------------------------------------
-    // --- DELETION LOGIC ---
-    // ----------------------------------------------------------------------
-
     const confirmAndDeleteTextNote = (noteId) => {
         Alert.alert(
             "Confirm Delete",
@@ -190,7 +177,6 @@ export default function NotesScreen({ navigation }) {
     async function deleteTextNote(noteId) {
         try {
             await deleteDoc(doc(db, "notes", noteId));
-            // Deletion is reflected automatically by onSnapshot
         } catch (error) {
             console.error("Error deleting text note:", error);
             Alert.alert("Error", "Failed to delete the text note.");
@@ -199,25 +185,16 @@ export default function NotesScreen({ navigation }) {
 
     async function deleteVoiceNote(noteId, fileName) {
         try {
-            // 1. Delete the file from Firebase Storage
             const storageRef = ref(storage, fileName);
             await deleteObject(storageRef);
 
-            // 2. Delete the metadata document from Firestore
             await deleteDoc(doc(db, "voiceNotes", noteId));
-            // Deletion is reflected automatically by onSnapshot
         } catch (error) {
             console.error("Error deleting voice note:", error);
             Alert.alert("Error", "Failed to delete the voice note/file.");
         }
     }
     
-    // ----------------------------------------------------------------------
-    // --- VOICE LOGIC (START/STOP/UPLOAD/PLAY) ---
-    // ----------------------------------------------------------------------
-    
-    // ... (Your startRecording, stopRecording, uploadAudioAsync, playAudio functions are here)
-
     async function startRecording() {
         const user = auth.currentUser;
         if (!user) {
@@ -279,11 +256,10 @@ export default function NotesScreen({ navigation }) {
 
             const downloadURL = await getDownloadURL(storageRef);
 
-            // Save metadata to Firestore, including userId and the fileName for deletion
             await addDoc(collection(db, "voiceNotes"), {
                 userId: userId,
                 url: downloadURL,
-                fileName: fileName, // <-- Storing fileName is crucial for storage deletion
+                fileName: fileName,
                 createdAt: serverTimestamp(),
             });
 
@@ -324,8 +300,6 @@ export default function NotesScreen({ navigation }) {
         }
     }
 
-    // --- Render Functions for FlatLists (UPDATED) ---
-
     const renderVoiceNote = ({ item }) => (
         <View style={styles.voiceNoteContainer}>
             <Text style={styles.voiceNoteDate}>
@@ -335,7 +309,7 @@ export default function NotesScreen({ navigation }) {
                 <Button 
                     title={currentSound && currentSound._uri === item.url ? "Stop" : "Play"} 
                     onPress={() => playAudio(item.url)} 
-                    color={currentSound && currentSound._uri === item.url ? '#5D9C4A' : '#43A047'} // Darker green for playing
+                    color={currentSound && currentSound._uri === item.url ? colors.textSecondary : colors.primary} 
                 />
                 <Button 
                     title="Delete" 
@@ -353,65 +327,55 @@ export default function NotesScreen({ navigation }) {
             iconName="pin-outline"
             cardText={item.text || "No content."}
             onPress={() => navigation.navigate('CreateNote', { note: item })} 
-            onDeletePress={() => confirmAndDeleteTextNote(item.id)} // Pass ID to deletion function
+            onDeletePress={() => confirmAndDeleteTextNote(item.id)}
         />
     );
 
+    if (!fontsLoaded) {
+        return <ActivityIndicator size="large" style={styles.loading} />;
+    }
 
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
                 
-                {/* 1. TOP HEADER */}
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Notes/Journal</Text>
-                    <TouchableOpacity
-                        style={styles.iconWrapper}
-                        onPress={() => navigation.navigate('CreateNote')}
-                    >
-                        <Image
-                            source={require('../assets/icons/cat-icon.png')}
-                            style={styles.homeIcon}
-                        />
-                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Notes & Voice Memos</Text>
                 </View>
 
-                {/* 2. SCROLLABLE CONTENT (FlatList and Button areas) */}
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
 
-                    {/* --- Record Button Area --- */}
                     <View style={styles.recordButtonContainer}>
-                        <Text style={styles.listTitle}>Voice Notes</Text>
+                        <Text style={styles.listTitle}>Voice Memos</Text>
                         <View style={{ marginTop: 10, width: '100%' }}>
                             {isUploading ? (
-                                <ActivityIndicator size="large" color={'#43A047'} />
+                                <ActivityIndicator size="large" color={colors.primary} />
                             ) : (
                                 <Button
                                     title={isRecording ? 'Stop Recording' : 'Start Recording'}
                                     onPress={isRecording ? stopRecording : startRecording}
-                                    color={isRecording ? colors.deleteButton : '#43A047'} // Red / Green
+                                    color={isRecording ? colors.deleteButton : colors.primary} 
                                 />
                             )}
                         </View>
                     </View>
 
-                    {/* --- Voice Notes List --- */}
-                    <Text style={styles.listTitle}>Voice Notes</Text>
+                    <Text style={[styles.listTitle, { marginTop: 25 }]}>Voice Memos</Text>
                     {isLoadingVoiceNotes ? (
                         <ActivityIndicator size="small" color={colors.headerText} />
                     ) : voiceNotes.length === 0 ? (
-                        <Text style={styles.emptyText}>No voice notes recorded yet.</Text>
+                        <Text style={styles.emptyText}>No voice memos recorded yet.</Text>
                     ) : (
                         <FlatList
                             data={voiceNotes}
                             renderItem={renderVoiceNote}
                             keyExtractor={(item) => item.id}
                             scrollEnabled={false}
+                            style={{marginBottom: 25}}
                         />
                     )}
                     
-                    {/* --- Text Notes List --- */}
-                    <Text style={[styles.listTitle, { marginTop: 25 }]}>Text Notes</Text>
+                    <Text style={styles.listTitle}>Text Notes</Text>
                     {isLoadingTextNotes ? (
                         <ActivityIndicator size="small" color={colors.headerText} />
                     ) : textNotes.length === 0 ? (
@@ -431,8 +395,13 @@ export default function NotesScreen({ navigation }) {
     );
 }
 
-// --- Stylesheet ---
 const styles = StyleSheet.create({
+    loading: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.background,
+    },
     safeArea: {
         flex: 1,
         backgroundColor: colors.background,
@@ -450,22 +419,25 @@ const styles = StyleSheet.create({
         paddingBottom: 10,
     },
     headerTitle: {
-        fontSize: 34,
+        fontFamily: "Fredoka",
+        fontSize: 32,
         fontWeight: '900',
         color: colors.headerText,
     },
     scrollContainer: {
         paddingHorizontal: 20,
         paddingTop: 10,
-        paddingBottom: 100,
+        paddingBottom: 150,
     },
     listTitle: {
-        fontSize: 20,
-        fontWeight: '600',
+        fontFamily: "Fredoka",
+        fontSize: 22,
+        fontWeight: '700',
         color: colors.headerText,
         marginBottom: 10,
     },
     emptyText: {
+        fontFamily: "Fredoka",
         fontSize: 16,
         color: colors.textSecondary,
         textAlign: 'center',
@@ -484,7 +456,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    // --- Voice Note List Styles ---
     voiceNoteContainer: {
         backgroundColor: colors.card,
         borderRadius: 15,
@@ -503,7 +474,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: colors.headerText,
     },
-    // --- Text Note Styles (updated) ---
     noteContainer: {
         marginBottom: 25,
     },
@@ -548,12 +518,12 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 22,
         fontWeight: 'bold',
-        color: colors.cardTitle,
+        color: colors.textPrimary,
         marginBottom: 10,
     },
     cardText: {
         fontSize: 16,
-        color: colors.cardText,
+        color: colors.textSecondary,
         lineHeight: 24,
     },
     iconWrapper: {
@@ -576,5 +546,5 @@ const styles = StyleSheet.create({
     },
     deleteIconWrapper: {
         paddingHorizontal: 5,
-    }
+    },
 });
