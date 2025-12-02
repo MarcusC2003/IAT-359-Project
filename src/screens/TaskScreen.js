@@ -194,7 +194,12 @@ export default function TaskScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
-
+                <TouchableOpacity
+                    style={styles.fab}
+                    onPress={addTask} 
+                >
+                    <Text style={styles.fabIcon}>+</Text>
+                </TouchableOpacity>
                 
                 <FlatList
                     data={flatListData}
@@ -215,12 +220,7 @@ export default function TaskScreen({ navigation }) {
                     }
                 />
 
-                 <TouchableOpacity
-                    style={styles.fab}
-                    onPress={addTask} 
-                >
-                    <Text style={styles.fabIcon}>+</Text>
-                </TouchableOpacity>
+ 
 
             </View>
         </SafeAreaView>
@@ -330,7 +330,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         right: 30,
-        bottom: 80,
+        bottom: 60,
         backgroundColor: colors.primary,
         borderRadius: 30,
         elevation: 8,

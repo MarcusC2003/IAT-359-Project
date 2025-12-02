@@ -225,7 +225,7 @@ export default function WeatherPageUI() {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        background: "#f7f1eb",
+        backgroundColor: "#EFE6DE",
         paddingTop: 8,
     },
     pageTitle: {
