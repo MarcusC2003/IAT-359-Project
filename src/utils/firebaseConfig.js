@@ -1,26 +1,28 @@
-import { initializeApp } from 'firebase/app'; 
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
-import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-import { getFirestore } from 'firebase/firestore';
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
-// 1. CONFIG: Use your hardcoded config for now, but switch to environment variables!
+import {
+  EXPO_PUBLIC_FIREBASE_API_KEY,
+  EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  EXPO_PUBLIC_FIREBASE_APP_ID,
+  EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
+} from "@env";
+
+console.log("API KEY:", EXPO_PUBLIC_FIREBASE_API_KEY); 
 const firebaseConfig = {
-    apiKey: "AIzaSyC6KZ_yZGrJRfiY4qpaQqqYFW4x6915De4",
-    authDomain: "palanner-c8edc.firebaseapp.com",
-    projectId: "palanner-c8edc",
-    storageBucket: "palanner-c8edc.firebasestorage.app",
-    messagingSenderId: "375339816481",
-    appId: "1:375339816481:web:f5f9f63c38ea603e563560",
-    measurementId: "G-WPM56YT3W9"
+  apiKey: EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: EXPO_PUBLIC_FIREBASE_APP_ID,
+  measurementId: EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-
 export const firebase_app = initializeApp(firebaseConfig);
-
-
-export const firebase_auth = initializeAuth(firebase_app, {
-    persistence: getReactNativePersistence(ReactNativeAsyncStorage)
-});
-
-
+export const firebase_auth = getAuth(firebase_app);
 export const db = getFirestore(firebase_app);

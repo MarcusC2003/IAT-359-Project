@@ -8,7 +8,7 @@ import {
     Image,
     TouchableOpacity,
     Alert,
-    ScrollView,
+    // ScrollView, // ⬅️ not needed anymore
 } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -76,6 +76,7 @@ export default function TaskScreen({ navigation }) {
     const isFocused = useIsFocused();
     
     const updateTaskState = useCallback((updatedTask) => {
+        // If no id, treat as new task
         if (!updatedTask.id) {
             const maxId = Math.max(...tasks.map(t => parseInt(t.id))) || 0;
             const newId = (maxId + 1).toString();
@@ -83,6 +84,7 @@ export default function TaskScreen({ navigation }) {
             return;
         }
 
+        // Update existing task
         setTasks(prevTasks =>
             prevTasks.map(task => 
                 task.id === updatedTask.id ? updatedTask : task
@@ -148,11 +150,12 @@ export default function TaskScreen({ navigation }) {
             },
         ];
 
-        const sortedTasks = [...tasks].sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1));
+        const sortedTasks = [...tasks].sort((a, b) => 
+            (a.completed === b.completed ? 0 : a.completed ? 1 : -1)
+        );
 
         sortedTasks.forEach(task => {
             const category = task.category || 'important'; 
-            
             const section = sections.find(s => s.category === category);
             if (section) {
                 section.data.push(task);
@@ -162,8 +165,15 @@ export default function TaskScreen({ navigation }) {
         let flatListData = [];
         sections.forEach(section => {
             if (section.data.length > 0) {
-                flatListData.push({ type: 'header', title: section.title, category: section.category, id: section.category });
-                flatListData.push(...section.data.map(task => ({ ...task, type: 'item' })));
+                flatListData.push({
+                    type: 'header',
+                    title: section.title,
+                    category: section.category,
+                    id: section.category,
+                });
+                flatListData.push(
+                    ...section.data.map(task => ({ ...task, type: 'item' }))
+                );
             }
         });
         
@@ -194,9 +204,6 @@ export default function TaskScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
-                <ScrollView contentContainerStyle={styles.scrollContainer}>
-
-                
                 <FlatList
                     data={flatListData}
                     keyExtractor={(item, index) => item.id + index}
@@ -204,11 +211,8 @@ export default function TaskScreen({ navigation }) {
                     contentContainerStyle={styles.flatListContent}
                     ListHeaderComponent={(
                         <View style={styles.mainHeader}>
-                            <Text style={styles.appTitle}>Palananner</Text>
-                            <Text style={styles.appDescription}>
-                                The adhd friendly app that has your calendar, to dos, weather, notes
-                                all in your custom room
-                            </Text>
+                            <Text style={styles.appTitle}>Palanner</Text>
+                            {/* <Text style={styles.appDescription}>...</Text> */}
                         </View>
                     )}
                     ListEmptyComponent={
@@ -216,14 +220,12 @@ export default function TaskScreen({ navigation }) {
                     }
                 />
 
-                 <TouchableOpacity
+                <TouchableOpacity
                     style={styles.fab}
                     onPress={addTask} 
                 >
                     <Text style={styles.fabIcon}>+</Text>
                 </TouchableOpacity>
-
-            </ScrollView>
             </View>
         </SafeAreaView>
     );
@@ -332,7 +334,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         right: 30,
-        bottom: 20,
+        bottom: 80,
         backgroundColor: colors.primary,
         borderRadius: 30,
         elevation: 8,

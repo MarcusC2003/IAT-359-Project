@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from "expo-font";
+import { Ionicons } from '@expo/vector-icons';   // ⬅️ add this
 
 const colors = {
     screenBackground: "#E9E3D5",
@@ -34,9 +35,7 @@ export default function EditTaskScreen({ navigation, route }) {
     const [fontsLoaded] = useFonts({ Fredoka: require("../assets/fonts/Fredoka.ttf") });
 
     const [taskText, setTaskText] = useState(taskToEdit?.text || '');
-    
     const [taskCategory, setTaskCategory] = useState(taskToEdit?.category || 'important');
-    
     const [isProcessing, setIsProcessing] = useState(false);
 
     const categories = ['important', 'not_important', 'reminder'];
@@ -91,7 +90,8 @@ export default function EditTaskScreen({ navigation, route }) {
     if (!fontsLoaded) {
         return <ActivityIndicator size="large" style={styles.loading} />;
     }
-// Help to format category display text via "cat'egory
+
+    // Help to format category display text via "category"
     const formatCategoryDisplay = (cat) => {
         if (cat === 'not_important') return 'Not Important';
         return cat.charAt(0).toUpperCase() + cat.slice(1);
@@ -100,10 +100,22 @@ export default function EditTaskScreen({ navigation, route }) {
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <SafeAreaView style={styles.screen}>
-                <Text style={styles.pageTitle}>{isEditing ? 'Edit Task' : 'Add New Task'}</Text>
+                {/* Header row with back arrow + title */}
+                <View style={styles.headerRow}>
+                    <TouchableOpacity
+                        onPress={() => navigation.goBack()}
+                        style={styles.backButton}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                        <Ionicons name="chevron-back" size={26} color={colors.textPrimary} />
+                    </TouchableOpacity>
+
+                    <Text style={styles.pageTitle}>
+                        {isEditing ? 'Edit Task' : 'Add New Task'}
+                    </Text>
+                </View>
 
                 <View style={styles.card}>
-                    
                     <Text style={styles.label}>Task Description</Text>
                     <TextInput
                         style={styles.inputTitle}
@@ -144,7 +156,9 @@ export default function EditTaskScreen({ navigation, route }) {
                         {isProcessing ? (
                             <ActivityIndicator color={colors.white} />
                         ) : (
-                            <Text style={styles.actionText}>{isEditing ? "Update Task" : "Add Task"}</Text>
+                            <Text style={styles.actionText}>
+                                {isEditing ? "Update Task" : "Add Task"}
+                            </Text>
                         )}
                     </TouchableOpacity>
 
@@ -167,14 +181,23 @@ const styles = StyleSheet.create({
         backgroundColor: colors.screenBackground,
         paddingTop: 8,
     },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        marginTop: 12,
+        marginBottom: 4,
+    },
+    backButton: {
+        marginRight: 6,
+        paddingVertical: 4,
+        paddingRight: 8,
+    },
     pageTitle: {
         fontFamily: "Fredoka",
         fontSize: 32,
         fontWeight: "900",
         color: colors.textPrimary,
-        paddingHorizontal: 20,
-        marginTop: 12,
-        marginBottom: 10,
     },
     card: {
         marginTop: 12,

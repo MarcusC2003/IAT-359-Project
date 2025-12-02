@@ -34,9 +34,7 @@ function NotesStack() {
   return (
     <NotesStackNav.Navigator screenOptions={{ headerShown: false }}>
       <NotesStackNav.Screen name="NotesList" component={NotesScreen} />
-      {/* if you ever want CreateNote inside the Notes tab instead of global:
-        <NotesStackNav.Screen name="CreateNote" component={CreateNoteScreen} />
-      */}
+      <NotesStackNav.Screen name="CreateNote" component={CreateNoteScreen} />
     </NotesStackNav.Navigator>
   );
 }
@@ -45,7 +43,7 @@ function TasksStack() {
   return (
     <TasksStackNav.Navigator screenOptions={{ headerShown: false }}>
       <TasksStackNav.Screen name="TasksList" component={TaskScreen} />
-      {/* You could also put EditTask here if it’s task-specific */}
+      <TasksStackNav.Screen name="EditTask" component={EditTaskScreen} />
     </TasksStackNav.Navigator>
   );
 }
@@ -116,21 +114,7 @@ export default function App() {
     <NavigationContainer>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
-          <>
-            <RootStack.Screen name="Main" component={ProtectedTabs} />
-
-            {/* Global modals */}
-            <RootStack.Screen
-              name="EditTask"
-              component={EditTaskScreen}
-              options={{ presentation: "modal" }}
-            />
-            <RootStack.Screen
-              name="CreateNote"
-              component={CreateNoteScreen}
-              options={{ presentation: "modal" }}
-            />
-          </>
+          <RootStack.Screen name="Main" component={ProtectedTabs} />
         ) : (
           <RootStack.Screen
             name="Auth"
