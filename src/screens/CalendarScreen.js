@@ -12,7 +12,9 @@ import { useFonts } from "expo-font";
 
 // module imports
 import {
-  subscribeToEventsForCurrentUser,deleteEventForCurrentUser} from "../modules/calendarEvents";
+  subscribeToEventsForCurrentUser,
+  deleteEventForCurrentUser,
+} from "../modules/calendarEvents";
 import TaskPopUp from "../components/TaskPopUp";
 
 const COLORS = {
@@ -33,16 +35,34 @@ const COLORS = {
 const formatMonth = (date) =>
   date.toLocaleDateString("en-CA", { month: "long" });
 
+// 
 const getDayNumber = (d) => d.getDate();
 const getDayLabel = (d) =>
   d.toLocaleDateString("en-CA", { weekday: "short" }).toLowerCase();
 
+// reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#date_getter_methods
+const toLocalYMD = (date) => {
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+//fix for probem with timezones
+const parseYMDToLocalDate = (ymd) => {
+  const [yearStr, monthStr, dayStr] = ymd.split("-");
+  const year = Number(yearStr);
+  const month = Number(monthStr);
+  const day = Number(dayStr);
+  return new Date(year, month - 1, day); 
+};
 
 const groupEventsByDay = (events) => {
   const map = {};
   events.forEach((e) => {
     const d = e.startDate || new Date();
-    const key = d.toISOString().slice(0, 10);
+    const key = toLocalYMD(d); // use local date string instead of toISOString
     if (!map[key]) map[key] = [];
     map[key].push(e);
   });
@@ -86,12 +106,12 @@ export default function CalendarScreen({ navigation }) {
     const keys = Object.keys(eventsByDay).sort();
     return keys.map((k) => ({
       key: k,
-      date: new Date(k),
+      date: parseYMDToLocalDate(k), // use local date 
       events: eventsByDay[k],
     }));
   }, [eventsByDay]);
 
-  const selectedKey = selectedDate.toISOString().slice(0, 10);
+  const selectedKey = toLocalYMD(selectedDate);
   const selectedEvents = eventsByDay[selectedKey] || [];
 
   const weekDays = useMemo(() => {
@@ -109,7 +129,7 @@ export default function CalendarScreen({ navigation }) {
         monday.getMonth(),
         monday.getDate() + i
       );
-      const key = d.toISOString().slice(0, 10);
+      const key = toLocalYMD(d);
       return { key, date: d, events: eventsByDay[key] || [] };
     });
   }, [selectedDate, eventsByDay]);
@@ -135,7 +155,6 @@ export default function CalendarScreen({ navigation }) {
       </View>
 
       <View style={styles.card}>
-
         {/* All / Week toggle */}
         <View style={styles.toggleRow}>
           {["all", "week"].map((mode) => {
@@ -223,7 +242,7 @@ export default function CalendarScreen({ navigation }) {
             </View>
 
             <Text style={styles.tasksLabel}>Tasks</Text>
-              {/* list of tasks */}
+            {/* list of tasks */}
             {selectedEvents.length === 0 ? (
               <Text style={styles.emptyText}>No tasks on this day.</Text>
             ) : (
@@ -245,7 +264,7 @@ export default function CalendarScreen({ navigation }) {
       </View>
 
       <TaskPopUp
-        visible={!!selectedEvent}
+        visible={selectedEvent ? true : false}
         event={selectedEvent}
         onClose={() => setSelectedEvent(null)}
         onRemove={handleRemoveEvent}
@@ -292,7 +311,7 @@ const EventPill = ({ event, index, onPress }) => {
     COLORS.eventBeige,
   ];
 
- //which category gets which colour
+  //which category gets which colour
   const categoryColorMap = {
     School: COLORS.eventBlue,
     Work: COLORS.eventGreen,
