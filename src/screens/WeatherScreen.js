@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
-import AsyncStorage from '@react-native-async-storage/async-storage'; // ⬅️ NEW IMPORT
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchWeatherData } from "../api/weatherAPI";
 
 const WEATHER_ACTIONS = {
@@ -221,7 +221,6 @@ export default function WeatherPageUI() {
     );
 }
 
-/* ===== Styles (Unchanged) ===== */
 const styles = StyleSheet.create({
     screen: {
         flex: 1,

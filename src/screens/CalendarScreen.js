@@ -135,6 +135,7 @@ export default function CalendarScreen({ navigation }) {
       </View>
 
       <View style={styles.card}>
+
         {/* All / Week toggle */}
         <View style={styles.toggleRow}>
           {["all", "week"].map((mode) => {
@@ -187,7 +188,7 @@ export default function CalendarScreen({ navigation }) {
         ) : (
           // -------- WEEK VIEW --------
           <View style={{ flex: 1 }}>
-            {/* Date strip */}
+            {/* List of days in week */}
             <View style={styles.weekStrip}>
               {weekDays.map((w) => {
                 const isSelected = w.key === selectedKey;
@@ -222,7 +223,7 @@ export default function CalendarScreen({ navigation }) {
             </View>
 
             <Text style={styles.tasksLabel}>Tasks</Text>
-
+              {/* list of tasks */}
             {selectedEvents.length === 0 ? (
               <Text style={styles.emptyText}>No tasks on this day.</Text>
             ) : (
@@ -281,7 +282,9 @@ const AllDayRow = ({ date, events, onEventPress }) => {
   );
 };
 
+// different colours for pills
 const EventPill = ({ event, index, onPress }) => {
+  //  Doesnt need to be here but I dont want to change something that works right now
   const baseColors = [
     COLORS.eventGreen,
     COLORS.eventPink,
@@ -289,7 +292,7 @@ const EventPill = ({ event, index, onPress }) => {
     COLORS.eventBeige,
   ];
 
-  // map categories to specific colors
+ //which category gets which colour
   const categoryColorMap = {
     School: COLORS.eventBlue,
     Work: COLORS.eventGreen,

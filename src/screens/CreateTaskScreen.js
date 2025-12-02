@@ -38,6 +38,7 @@ export default function CreateTaskScreen({ navigation }) {
 
   const [showCategoryList, setShowCategoryList] = useState(false);
 
+  // Create the event when "Create" button is pressed
   const handleCreate = async () => {
     if (!title || !startDate) {
       Alert.alert("Missing info", "Please enter at least a title and start date.");
