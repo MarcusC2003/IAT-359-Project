@@ -40,7 +40,7 @@ export default function WeatherPageUI() {
     const [isAdding, setIsAdding] = useState(false);
     const [weatherLoading, setWeatherLoading] = useState(true); // Separate loading state for weather API
 
-    // --- 1. Load Reminders from AsyncStorage on Mount ---
+    // Load reminders from AsyncStorage on mount
     useEffect(() => {
         const loadReminders = async () => {
             try {
@@ -55,7 +55,7 @@ export default function WeatherPageUI() {
         
         loadReminders();
         
-        // Fetch Weather Data (moved inside useEffect but kept async IIFE logic)
+        // Fetch Weather Data
         (async () => {
             try {
                 const { current: fetchedCurrent, hourly: fetchedHourly } = await fetchWeatherData();
@@ -71,7 +71,7 @@ export default function WeatherPageUI() {
         })();
     }, []);
 
-    // --- 2. Save Reminders to AsyncStorage whenever customReminders changes ---
+    // Save reminders to AsyncStorage whenever they change
     useEffect(() => {
         const saveReminders = async () => {
             try {
@@ -98,7 +98,6 @@ export default function WeatherPageUI() {
     const handleAddReminder = () => {
         const text = newReminderText.trim();
         if (text.length > 0) {
-            // Note: use a unique key if you ever need to delete them
             setCustomReminders(prev => [...prev, text]); 
             setNewReminderText('');
             setIsAdding(false);
