@@ -8,12 +8,12 @@ import {
     Image,
     TouchableOpacity,
     Alert,
+    ScrollView,
 } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useIsFocused, useFocusEffect } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 
-// --- Color Palette (Unchanged) ---
 const colors = {
     background: '#f7f1eb',
     primary: '#E0916C', 
@@ -24,9 +24,9 @@ const colors = {
     checkboxText: '#5c3a2c',
     completedText: 'rgba(92, 58, 44, 0.4)',
     deleteIcon: '#d16160ff',
+    card: '#fff',
 };
 
-// --- Initial Task Data (Priority categories) ---
 const initialTasks = [
     { id: '1', text: "Complete color scheme", category: "important", completed: false },
     { id: '2', text: "Complete mock-up key frames", category: "important", completed: false },
@@ -35,7 +35,6 @@ const initialTasks = [
     { id: '5', text: "Journal and try the best you can", category: "reminder", completed: false },
 ];
 
-// --- Task Item Component (DATE DISPLAY REMOVED) ---
 const TaskItem = ({ task, onToggle, onEdit, onDelete }) => {
     const checkboxSource = task.completed
         ? require('../assets/icons/checklist-icon.png')
@@ -63,7 +62,6 @@ const TaskItem = ({ task, onToggle, onEdit, onDelete }) => {
                 >
                     {task.text}
                 </Text>
-                {/* DATE DISPLAY HAS BEEN REMOVED */}
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => onDelete(task.id)} style={styles.deleteButton}>
@@ -73,7 +71,6 @@ const TaskItem = ({ task, onToggle, onEdit, onDelete }) => {
     );
 };
 
-// --- Main TaskScreen Component ---
 export default function TaskScreen({ navigation }) {
     const [tasks, setTasks] = useState(initialTasks);
     const isFocused = useIsFocused();
@@ -124,21 +121,33 @@ export default function TaskScreen({ navigation }) {
     };
     
     const addTask = () => {
-        navigation.navigate('EditTask', { 
-            task: { category: 'important' }, 
+        navigation.navigate('EditTask', {
             onSave: updateTaskState,
+            onDelete: deleteTask,
         });
     };
 
-    // --- GROUPING LOGIC (Priority-Based) ---
     const getGroupedTasks = () => {
         const sections = [
-            { title: "⭐ Important & Urgent", category: "important", data: [] },
-            { title: "🔔 Other Tasks", category: "not_important", data: [] },
-            { title: "💡 Just Reminder:", category: "reminder", data: [] },
+            { 
+                title: "*Important & Urgent*", 
+                category: "important", 
+                icon: require('../assets/icons/Important_Icon.png'), 
+                data: [] 
+            },
+            { 
+                title: "#Other Tasks#", 
+                category: "not_important", 
+                data: [] 
+            },
+            { 
+                title: "~Just Reminder~:", 
+                category: "reminder", 
+                icon: require('../assets/icons/Reminder_Icon.png'),
+                data: [] 
+            },
         ];
 
-        // Sort by completion status first (incomplete first), then distribute
         const sortedTasks = [...tasks].sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1));
 
         sortedTasks.forEach(task => {
@@ -185,25 +194,28 @@ export default function TaskScreen({ navigation }) {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
-                <View style={styles.mainHeader}>
-                    <Text style={styles.appTitle}>Palananner</Text>
-                    <Text style={styles.appDescription}>
-                        The adhd friendly app that has your calendar, to dos, weather, notes
-                        all in your custom room
-                    </Text>
-                </View>
 
+                
                 <FlatList
                     data={flatListData}
                     keyExtractor={(item, index) => item.id + index}
                     renderItem={renderItem}
                     contentContainerStyle={styles.flatListContent}
+                    ListHeaderComponent={(
+                        <View style={styles.mainHeader}>
+                            <Text style={styles.appTitle}>Palananner</Text>
+                            <Text style={styles.appDescription}>
+                                The adhd friendly app that has your calendar, to dos, weather, notes
+                                all in your custom room
+                            </Text>
+                        </View>
+                    )}
                     ListEmptyComponent={
                         <Text style={styles.emptyText}>No tasks scheduled. Time to relax!</Text>
                     }
                 />
 
-                <TouchableOpacity
+                 <TouchableOpacity
                     style={styles.fab}
                     onPress={addTask} 
                 >
@@ -215,8 +227,7 @@ export default function TaskScreen({ navigation }) {
     );
 }
 
-// --- Stylesheet ---
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: colors.background,
@@ -319,7 +330,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         right: 30,
-        bottom: 30,
+        bottom: 80,
         backgroundColor: colors.primary,
         borderRadius: 30,
         elevation: 8,

@@ -98,7 +98,7 @@ export default function WeatherPageUI() {
     const handleAddReminder = () => {
         const text = newReminderText.trim();
         if (text.length > 0) {
-            // Note: Use a unique key if you ever need to delete them, but text is fine for a simple list.
+            // Note: use a unique key if you ever need to delete them
             setCustomReminders(prev => [...prev, text]); 
             setNewReminderText('');
             setIsAdding(false);
@@ -221,11 +221,11 @@ export default function WeatherPageUI() {
     );
 }
 
-/* ===== Styles (Unchanged) ===== */
+/* ===== Styles ===== */
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: "#E9E3D5",
+        background: "#f7f1eb",
         paddingTop: 8,
     },
     pageTitle: {

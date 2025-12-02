@@ -36,14 +36,16 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 const colors = {
-    background: "#E9E3D5",
-    primary: "#E0916C",
-    headerText: "#5B3C2E",
-    textPrimary: "#5B3C2E",
-    textSecondary: "#8A7A71",
-    card: "#fff",
-    white: "#ffffff",
-    inputBackground: "#FAF8F6",
+    background: '#f7f1eb',
+    primary: '#E0916C', 
+    textPrimary: '#5c3a2c',
+    textSecondary: '#8a8a8a',
+    white: '#fff', 
+    checkboxBorder: '#e09a80',
+    checkboxText: '#5c3a2c',
+    completedText: 'rgba(92, 58, 44, 0.4)',
+    deleteIcon: '#d16160ff',
+    card: '#fff',
 };
 
 const TextNoteCard = ({ title, date, iconName, cardText, onPress, onDeletePress }) => {
@@ -69,6 +71,7 @@ const TextNoteCard = ({ title, date, iconName, cardText, onPress, onDeletePress 
         </TouchableOpacity>
     );
 };
+
 
 export default function NotesScreen({ navigation }) {
     const [fontsLoaded] = useFonts({ Fredoka: require("../assets/fonts/Fredoka.ttf") });
@@ -389,11 +392,19 @@ export default function NotesScreen({ navigation }) {
                         />
                     )}
 
+                    <TouchableOpacity
+                        style={styles.fab}
+                        onPress={() => navigation.navigate('CreateNote')}
+                    >
+                        <Text style={styles.fabIcon}>+</Text>
+                    </TouchableOpacity>
+
                 </ScrollView>
             </View>
         </SafeAreaView>
     );
 }
+
 
 const styles = StyleSheet.create({
     loading: {
@@ -410,6 +421,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.background,
     },
+    scrollContainer: {
+     flexGrow: 1, 
+        backgroundColor: colors.background,
+ },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -546,5 +561,26 @@ const styles = StyleSheet.create({
     },
     deleteIconWrapper: {
         paddingHorizontal: 5,
+    },
+    fab: {
+        position: 'absolute',
+        width: 60,
+        height: 60,
+        alignItems: 'center',
+        justifyContent: 'center',
+        right: 30,
+        bottom: 80,
+        backgroundColor: colors.primary,
+        borderRadius: 30,
+        elevation: 8,
+        shadowColor: '#3a1f08ff',
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        shadowOffset: { width: 0, height: 2 },
+    },
+    fabIcon: {
+        fontSize: 30,
+        color: 'white',
+        lineHeight: 30,
     },
 });

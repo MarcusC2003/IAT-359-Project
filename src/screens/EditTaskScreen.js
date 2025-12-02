@@ -20,9 +20,11 @@ const colors = {
     textPrimary: "#5B3C2E",
     borderColor: "#d8d4ce",
     inputBackground: "#FAF8F6",
-    deleteButton: '#E53935',
+    deleteButton: '#cf5553ff',
     white: '#ffffff',
 };
+
+// --- Edit Task Screen ---
 
 export default function EditTaskScreen({ navigation, route }) {
     const taskToEdit = route.params?.task;
@@ -89,7 +91,7 @@ export default function EditTaskScreen({ navigation, route }) {
     if (!fontsLoaded) {
         return <ActivityIndicator size="large" style={styles.loading} />;
     }
-
+// Help to format category display text via "cat'egory
     const formatCategoryDisplay = (cat) => {
         if (cat === 'not_important') return 'Not Important';
         return cat.charAt(0).toUpperCase() + cat.slice(1);
@@ -152,6 +154,7 @@ export default function EditTaskScreen({ navigation, route }) {
     );
 }
 
+// --- Styles ---
 const styles = StyleSheet.create({
     loading: {
         flex: 1,

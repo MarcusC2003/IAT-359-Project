@@ -18,7 +18,7 @@ import { getAuth } from 'firebase/auth';
 import { app } from '../utils/firebaseConfig';
 
 const auth = getAuth(app);
-
+// --- Color Palette ---
 const colors = {
     screenBackground: "#E9E3D5",
     card: "#fff",
@@ -28,6 +28,9 @@ const colors = {
     borderColor: "#d8d4ce",
     inputBackground: "#FAF8F6",
 };
+
+
+// --- Create Note Screen ---
 
 export default function CreateNoteScreen({ navigation, route }) {
     const [fontsLoaded] = useFonts({ Fredoka: require("../assets/fonts/Fredoka.ttf") });
@@ -144,6 +147,7 @@ export default function CreateNoteScreen({ navigation, route }) {
     );
 }
 
+// --- Styles ---
 const styles = StyleSheet.create({
     loading: {
         flex: 1,
