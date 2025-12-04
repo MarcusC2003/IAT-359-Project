@@ -1,39 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     StyleSheet,
     View,
     Text,
     ScrollView,
-    SafeAreaView,
     Platform,
-    Image,
     Button,
     FlatList,
     ActivityIndicator,
     TouchableOpacity,
     Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 import { Audio } from 'expo-av';
 import { getAuth } from 'firebase/auth';
 import { 
-    getFirestore, 
-    collection, 
-    onSnapshot, 
-    query, 
-    where, 
-    serverTimestamp, 
-    orderBy,
-    deleteDoc,
-    doc,
-    addDoc, 
-} from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { app } from '../utils/firebaseConfig'; 
+    subscribeToTextNotes, 
+    subscribeToLocalVoiceNotes,
+    deleteTextNote, 
+    deleteLocalVoiceNote,
+    saveLocalAudioFile
+} from '../modules/notesData'; 
+import { firebase_app as app } from '../utils/firebaseConfig'; 
 
 const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
 
 const colors = {
     background: '#f7f1eb',
@@ -46,6 +37,8 @@ const colors = {
     completedText: 'rgba(92, 58, 44, 0.4)',
     deleteIcon: '#d16160ff',
     card: '#fff',
+    headerText: '#5c3a2c', 
+    deleteButton: '#d16160ff', 
 };
 
 const TextNoteCard = ({ title, date, iconName, cardText, onPress, onDeletePress }) => {
@@ -72,135 +65,73 @@ const TextNoteCard = ({ title, date, iconName, cardText, onPress, onDeletePress 
     );
 };
 
-
 export default function NotesScreen({ navigation }) {
+    const insets = useSafeAreaInsets();
     const [fontsLoaded] = useFonts({ Fredoka: require("../assets/fonts/Fredoka.ttf") });
     const currentUserId = auth.currentUser?.uid;
 
     const [recording, setRecording] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [voiceNotes, setVoiceNotes] = useState([]);
     const [isLoadingVoiceNotes, setIsLoadingVoiceNotes] = useState(true);
     const [currentSound, setCurrentSound] = useState(null);
 
     const [textNotes, setTextNotes] = useState([]);
     const [isLoadingTextNotes, setIsLoadingTextNotes] = useState(true);
-
-    const getTimestampDisplay = (firestoreTimestamp) => {
-        if (!firestoreTimestamp) return 'Saving...';
-        const date = firestoreTimestamp.toDate ? firestoreTimestamp.toDate() : new Date(firestoreTimestamp);
-        return date.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
-
-    useEffect(() => {
-        const user = auth.currentUser;
-        if (!user) {
-            setIsLoadingVoiceNotes(false);
-            return;
-        }
-
-        const notesQuery = query(
-            collection(db, "voiceNotes"),
-            where("userId", "==", user.uid),
-            orderBy("createdAt", "desc")
-        );
-
-        const unsubscribe = onSnapshot(notesQuery, (snapshot) => {
-            const notes = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setVoiceNotes(notes);
-            setIsLoadingVoiceNotes(false);
-        }, (error) => {
-            console.error("Error fetching voice notes: ", error);
-            setIsLoadingVoiceNotes(false);
-        });
-
-        return () => unsubscribe();
-    }, [currentUserId]);
-
-    useEffect(() => {
-        const user = auth.currentUser;
-        if (!user) {
-            setIsLoadingTextNotes(false);
-            return;
-        }
-
-        const textNotesQuery = query(
-            collection(db, "notes"), 
-            where("userId", "==", user.uid),
-            orderBy("createdAt", "desc")
-        );
-
-        const unsubscribeText = onSnapshot(textNotesQuery, (snapshot) => {
-            const notes = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            setTextNotes(notes);
-            setIsLoadingTextNotes(false);
-        }, (error) => {
-            console.error("Error fetching text notes: ", error);
-            setIsLoadingTextNotes(false);
-        });
-
-        return () => unsubscribeText();
-    }, [currentUserId]);
-
-    const confirmAndDeleteTextNote = (noteId) => {
-        Alert.alert(
-            "Confirm Delete",
-            "Are you sure you want to permanently delete this note?",
-            [
-                { text: "Cancel", style: "cancel" },
-                { text: "Delete", style: "destructive", onPress: () => deleteTextNote(noteId) },
-            ]
-        );
-    };
-
-    const confirmAndDeleteVoiceNote = (noteId, fileName) => {
-        Alert.alert(
-            "Confirm Delete",
-            "Are you sure you want to permanently delete this voice memo?",
-            [
-                { text: "Cancel", style: "cancel" },
-                { text: "Delete", style: "destructive", onPress: () => deleteVoiceNote(noteId, fileName) },
-            ]
-        );
-    };
-
-    async function deleteTextNote(noteId) {
-        try {
-            await deleteDoc(doc(db, "notes", noteId));
-        } catch (error) {
-            console.error("Error deleting text note:", error);
-            Alert.alert("Error", "Failed to delete the text note.");
-        }
-    }
-
-    async function deleteVoiceNote(noteId, fileName) {
-        try {
-            const storageRef = ref(storage, fileName);
-            await deleteObject(storageRef);
-
-            await deleteDoc(doc(db, "voiceNotes", noteId));
-        } catch (error) {
-            console.error("Error deleting voice note:", error);
-            Alert.alert("Error", "Failed to delete the voice note/file.");
-        }
-    }
     
+    const getTimestampDisplay = useMemo(() => (timestamp) => {
+        if (!timestamp) return 'Saving...';
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        return date.toLocaleDateString('en-GB', {
+            day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+    }, []);
+
+    useEffect(() => {
+        if (!currentUserId) {
+            setIsLoadingVoiceNotes(false);
+            setIsLoadingTextNotes(false);
+            return;
+        }
+
+        const unsubVoice = subscribeToLocalVoiceNotes(currentUserId, setVoiceNotes, setIsLoadingVoiceNotes);
+        const unsubText = subscribeToTextNotes(currentUserId, setTextNotes, setIsLoadingTextNotes);
+
+        return () => {
+            unsubVoice();
+            unsubText();
+        };
+    }, [currentUserId]);
+
+    const handleConfirmDeleteTextNote = (noteId) => {
+        Alert.alert("Confirm Delete", "Are you sure you want to permanently delete this note?", [
+            { text: "Cancel", style: "cancel" },
+            { text: "Delete", style: "destructive", onPress: async () => {
+                try {
+                    await deleteTextNote(noteId);
+                } catch (error) {
+                    Alert.alert("Error", "Failed to delete the text note.");
+                }
+            }},
+        ]);
+    };
+
+    const handleConfirmDeleteVoiceNote = (noteId, uri) => {
+        Alert.alert("Confirm Delete", "Are you sure you want to permanently delete this voice memo?", [
+            { text: "Cancel", style: "cancel" },
+            { text: "Delete", style: "destructive", onPress: async () => {
+                try {
+                    deleteLocalVoiceNote(noteId, uri);
+                } catch (error) {
+                    Alert.alert("Error", "Failed to delete the voice note/file.");
+                }
+            }},
+        ]);
+    };
+
     async function startRecording() {
-        const user = auth.currentUser;
-        if (!user) {
+        if (!currentUserId) {
             alert('Please log in to start recording.');
             return;
         }
@@ -212,18 +143,16 @@ export default function NotesScreen({ navigation }) {
                 return;
             }
 
-            await Audio.setAudioModeAsync({
-                allowsRecordingIOS: true,
-                playsInSilentModeIOS: true,
-            });
-
+            await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+            
+            // --- HIGH QUALITY SETTING ---
             const { recording } = await Audio.Recording.createAsync(
-                Audio.RecordingOptionsPresets.HIGH_QUALITY
+                Audio.RecordingOptionsPresets.HIGH_QUALITY // Changed to HIGH_QUALITY
             );
-
+            // -----------------------------
+            
             setRecording(recording);
             setIsRecording(true);
-
         } catch (err) {
             console.error('failed to start recording', err);
         }
@@ -233,47 +162,21 @@ export default function NotesScreen({ navigation }) {
         if (!recording) return;
 
         setIsRecording(false);
-
         await recording.stopAndUnloadAsync();
         const uri = recording.getURI();
         setRecording(null);
 
-        await uploadAudioAsync(uri);
-    }
-
-    async function uploadAudioAsync(uri) {
-        const user = auth.currentUser;
-        if (!uri || !user) return;
-
-        setIsUploading(true);
-
+        setIsSaving(true);
         try {
-            const response = await fetch(uri);
-            const blob = await response.blob();
-
-            const userId = user.uid;
-            const fileName = `voice-notes/${userId}/${new Date().toISOString()}.m4a`;
-            const storageRef = ref(storage, fileName);
-
-            await uploadBytes(storageRef, blob);
-
-            const downloadURL = await getDownloadURL(storageRef);
-
-            await addDoc(collection(db, "voiceNotes"), {
-                userId: userId,
-                url: downloadURL,
-                fileName: fileName,
-                createdAt: serverTimestamp(),
-            });
-
+            saveLocalAudioFile(uri, currentUserId);
         } catch (error) {
-            console.error("Error uploading audio: ", error);
-            Alert.alert("Error", "There was an error uploading your note. Check console for details.");
+            console.error("CRITICAL SAVE FAILURE:", error);
+            Alert.alert("Error", "There was an error saving your note locally.");
         } finally {
-            setIsUploading(false);
+            setIsSaving(false);
         }
     }
-
+    
     async function playAudio(url) {
         if (currentSound) {
             await currentSound.unloadAsync();
@@ -282,22 +185,16 @@ export default function NotesScreen({ navigation }) {
         }
 
         try {
-            await Audio.setAudioModeAsync({
-                allowsRecordingIOS: false,
-                playsInSilentModeIOS: true,
-            });
-
-            const { sound } = await Audio.Sound.createAsync({ uri: url });
+            await Audio.setAudioModeAsync({ allowsRecordingIOS: false, playsInSilentModeIOS: true });
+            const { sound } = await Audio.Sound.createAsync({ uri: url }); 
             setCurrentSound(sound);
             await sound.playAsync();
-
             sound.setOnPlaybackStatusUpdate((status) => {
                 if (status.didJustFinish) {
                     sound.unloadAsync();
                     setCurrentSound(null);
                 }
             });
-
         } catch (error) {
             console.error("Error playing audio: ", error);
         }
@@ -306,17 +203,17 @@ export default function NotesScreen({ navigation }) {
     const renderVoiceNote = ({ item }) => (
         <View style={styles.voiceNoteContainer}>
             <Text style={styles.voiceNoteDate}>
-                {item.createdAt ? new Date(item.createdAt.toDate()).toLocaleString() : 'Saving...'}
+                {getTimestampDisplay(item.createdAt)} 
             </Text>
             <View style={{ flexDirection: 'row', gap: 10 }}>
                 <Button 
-                    title={currentSound && currentSound._uri === item.url ? "Stop" : "Play"} 
-                    onPress={() => playAudio(item.url)} 
-                    color={currentSound && currentSound._uri === item.url ? colors.textSecondary : colors.primary} 
+                    title={"Play"} 
+                    onPress={() => playAudio(item.uri)} 
+                    color={colors.primary} 
                 />
                 <Button 
                     title="Delete" 
-                    onPress={() => confirmAndDeleteVoiceNote(item.id, item.fileName)} 
+                    onPress={() => handleConfirmDeleteVoiceNote(item.id, item.uri)}
                     color={colors.deleteButton} 
                 />
             </View>
@@ -330,7 +227,7 @@ export default function NotesScreen({ navigation }) {
             iconName="pin-outline"
             cardText={item.text || "No content."}
             onPress={() => navigation.navigate('CreateNote', { note: item })} 
-            onDeletePress={() => confirmAndDeleteTextNote(item.id)}
+            onDeletePress={() => handleConfirmDeleteTextNote(item.id)}
         />
     );
 
@@ -339,7 +236,7 @@ export default function NotesScreen({ navigation }) {
     }
 
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <View style={[styles.page, { paddingTop: insets.top }]}>
             <View style={styles.container}>
                 
                 <View style={styles.header}>
@@ -351,11 +248,11 @@ export default function NotesScreen({ navigation }) {
                     <View style={styles.recordButtonContainer}>
                         <Text style={styles.listTitle}>Voice Memos</Text>
                         <View style={{ marginTop: 10, width: '100%' }}>
-                            {isUploading ? (
+                            {isSaving ? (
                                 <ActivityIndicator size="large" color={colors.primary} />
                             ) : (
                                 <Button
-                                    title={isRecording ? 'Stop Recording' : 'Start Recording'}
+                                    title={isRecording ? 'Stop Recording' : 'Start Recording (High Quality)'}
                                     onPress={isRecording ? stopRecording : startRecording}
                                     color={isRecording ? colors.deleteButton : colors.primary} 
                                 />
@@ -363,11 +260,11 @@ export default function NotesScreen({ navigation }) {
                         </View>
                     </View>
 
-                    <Text style={[styles.listTitle, { marginTop: 25 }]}>Voice Memos</Text>
+                    <Text style={[styles.listTitle, { marginTop: 25 }]}>Voice Memos (Local)</Text>
                     {isLoadingVoiceNotes ? (
                         <ActivityIndicator size="small" color={colors.headerText} />
                     ) : voiceNotes.length === 0 ? (
-                        <Text style={styles.emptyText}>No voice memos recorded yet.</Text>
+                        <Text style={styles.emptyText}>No local voice memos recorded yet.</Text>
                     ) : (
                         <FlatList
                             data={voiceNotes}
@@ -401,7 +298,7 @@ export default function NotesScreen({ navigation }) {
 
                 </ScrollView>
             </View>
-        </SafeAreaView>
+        </View>
     );
 }
 
@@ -413,7 +310,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: colors.background,
     },
-    safeArea: {
+    page: {
         flex: 1,
         backgroundColor: colors.background,
     },
@@ -422,15 +319,14 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
     },
     scrollContainer: {
-     flexGrow: 1, 
+        flexGrow: 1, 
         backgroundColor: colors.background,
- },
+    },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 20,
-        paddingTop: Platform.OS === 'android' ? 30 : 10,
         paddingBottom: 10,
     },
     headerTitle: {

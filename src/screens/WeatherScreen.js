@@ -24,23 +24,19 @@ const WEATHER_ACTIONS = {
     Default: ["Check the forecast later", "Wear comfortable layers"],
 };
 
-// Define a constant key for AsyncStorage
 const REMINDER_STORAGE_KEY = '@weather_custom_reminders'; 
 
 export default function WeatherPageUI() {
     const [fontsLoaded] = useFonts({ Fredoka: require("../assets/fonts/Fredoka.ttf") });
 
-    const [loading, setLoading] = useState(true);
     const [current, setCurrent] = useState(null);
     const [hourly, setHourly] = useState([]);
     
-    // Initial state is now an empty array, data will be loaded from storage
     const [customReminders, setCustomReminders] = useState([]); 
     const [newReminderText, setNewReminderText] = useState('');
     const [isAdding, setIsAdding] = useState(false);
-    const [weatherLoading, setWeatherLoading] = useState(true); // Separate loading state for weather API
+    const [weatherLoading, setWeatherLoading] = useState(true);
 
-    // Load reminders from AsyncStorage on mount
     useEffect(() => {
         const loadReminders = async () => {
             try {
@@ -55,7 +51,6 @@ export default function WeatherPageUI() {
         
         loadReminders();
         
-        // Fetch Weather Data
         (async () => {
             try {
                 const { current: fetchedCurrent, hourly: fetchedHourly } = await fetchWeatherData();
@@ -71,7 +66,6 @@ export default function WeatherPageUI() {
         })();
     }, []);
 
-    // Save reminders to AsyncStorage whenever they change
     useEffect(() => {
         const saveReminders = async () => {
             try {
@@ -81,9 +75,7 @@ export default function WeatherPageUI() {
             }
         };
 
-        if (customReminders.length > 0 || customReminders.length === 0) {
-             saveReminders();
-        }
+        saveReminders();
         
     }, [customReminders]);
 
@@ -92,19 +84,35 @@ export default function WeatherPageUI() {
         if (!current || !current.label) return WEATHER_ACTIONS.Default;
         
         const condition = current.label.split(' ')[0];
-        return WEATHER_ACTIONS[condition] || WEATHER_ACTIONS.Default;
+        return (WEATHER_ACTIONS[condition] || WEATHER_ACTIONS.Default).map((text, i) => ({
+            id: `suggested_${condition}_${i}`,
+            text: text,
+            isSuggested: true,
+        }));
     }, [current]);
 
     const handleAddReminder = () => {
         const text = newReminderText.trim();
         if (text.length > 0) {
-            setCustomReminders(prev => [...prev, text]); 
+            const newReminder = {
+                id: Date.now().toString(),
+                text: text,
+                isSuggested: false,
+            };
+            setCustomReminders(prev => [...prev, newReminder]); 
             setNewReminderText('');
             setIsAdding(false);
             Keyboard.dismiss();
         } else {
             Alert.alert("Input Required", "Please enter a reminder.");
         }
+    };
+    
+    const handleDeleteReminder = (id) => {
+        setCustomReminders(prev => {
+            const updatedList = prev.filter(reminder => reminder.id !== id);
+            return updatedList;
+        });
     };
 
     const date = useMemo(() => new Date(), []);
@@ -118,24 +126,22 @@ export default function WeatherPageUI() {
         [date]
     );
 
-    // Consolidated Loading Check
+    const customRemindersWithIds = customReminders.map(r => ({ ...r, isSuggested: false }));
+    const allReminders = [...suggestedActions, ...customRemindersWithIds];
+
     if (!fontsLoaded || weatherLoading) {
         return <ActivityIndicator size="large" style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} />;
     }
     
-    const allReminders = [...suggestedActions, ...customReminders];
-
     return (
         <SafeAreaView style={styles.screen}>
             <Text style={styles.pageTitle}>Today’s weather</Text>
 
             <View style={styles.card}>
-                {/* Date */}
                 <Text style={styles.date}>
                     {dateLabel} 
                 </Text>
 
-                {/* Hero */}
                 <View style={styles.hero}>
                     <Image source={current.icon} style={styles.weatherIcon} />
                     <Text style={styles.temp}>
@@ -147,7 +153,6 @@ export default function WeatherPageUI() {
 
                 <View style={styles.divider} />
 
-                {/* Forecast */}
                 <View style={styles.subCard}>
                     <Text style={styles.subTitle}>Today’s Forecast</Text>
                     <FlatList
@@ -169,7 +174,6 @@ export default function WeatherPageUI() {
                     />
                 </View>
 
-                {/* Reminders */}
                 <View style={[styles.subCard, { marginTop: 16 }]}>
                     <View style={styles.reminderHeader}>
                         <Text style={styles.subTitle}>Personal Reminders</Text>
@@ -182,7 +186,6 @@ export default function WeatherPageUI() {
                         </TouchableOpacity>
                     </View>
 
-                    {/* Add New Reminder Input */}
                     {isAdding && (
                         <View style={styles.addInputContainer}>
                             <TextInput
@@ -202,14 +205,27 @@ export default function WeatherPageUI() {
                         </View>
                     )}
 
-                    {/* Combined Reminder List */}
                     <View style={styles.reminderList}>
                         {allReminders.length > 0 ? (
-                            allReminders.map((item, i) => (
-                                <Text key={i} style={styles.bullet}>
-                                    • <Text style={styles.bulletText}>{item}</Text>
-                                </Text>
-                            ))
+                            allReminders.map((item) => {
+                                const isDeletable = item.isSuggested === false;
+                                
+                                return (
+                                    <View key={item.id} style={styles.bulletRow}>
+                                        <Text style={styles.bullet}>
+                                            • <Text style={styles.bulletText}>{item.text}</Text>
+                                        </Text>
+                                        {isDeletable && (
+                                            <TouchableOpacity 
+                                                onPress={() => handleDeleteReminder(item.id)}
+                                                style={styles.deleteIcon}
+                                            >
+                                                <Text style={styles.deleteText}>✕</Text>
+                                            </TouchableOpacity>
+                                        )}
+                                    </View>
+                                );
+                            })
                         ) : (
                             <Text style={styles.emptyReminderText}>No suggested actions or custom reminders.</Text>
                         )}
@@ -378,12 +394,35 @@ const styles = StyleSheet.create({
         fontFamily: "Fredoka",
     },
     reminderList: { marginTop: 4 },
-    bullet: { marginTop: 8, paddingLeft: 6 },
+    bulletRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 8,
+        paddingLeft: 6,
+    },
+    bullet: { 
+        paddingRight: 10,
+        flexShrink: 1,
+    },
     bulletText: {
         color: "#5B3C2E",
         fontSize: 16,
         fontWeight: "900",
         fontFamily: "Fredoka",
+    },
+    deleteIcon: {
+        paddingHorizontal: 10,
+        paddingVertical: 2,
+        borderRadius: 10,
+        backgroundColor: '#f3c7c7',
+    },
+    deleteText: {
+        color: '#d16160ff',
+        fontWeight: '900',
+        fontFamily: "Fredoka",
+        fontSize: 16,
+        lineHeight: 16,
     },
     emptyReminderText: {
         color: "#8a8a8a",
